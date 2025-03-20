@@ -4,17 +4,18 @@ using Serilog;
 
 namespace KworkNotify.Core;
 
-public class KworkService(KworkParser parser, IOptions<AppSettings> settings) : IHostedService
+public sealed class KworkService(KworkParser parser, IOptions<AppSettings> settings) : IHostedService
 {
     private Task? _task;
     private CancellationTokenSource? _cts;
     private readonly Random _random = new();
+    public event EventHandler<KworkProjectArgs>? OnAddedKworkProject;
     
     public Task StartAsync(CancellationToken cancellationToken)
     {
         Log.Information("Kwork service started");
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _task = ExecuteAsync();
+        _task = Worker();
         return Task.CompletedTask;
     }
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -39,13 +40,14 @@ public class KworkService(KworkParser parser, IOptions<AppSettings> settings) : 
         }
     }
 
-    private async Task ExecuteAsync()
+    private async Task Worker()
     {
         if (_cts?.Token == null)
         {
             Log.Error("Kwork service can not be started");
             return;
         }
+        Log.Information("Kwork service starting");
         await Task.Delay(3000, _cts.Token);
         while (!_cts.Token.IsCancellationRequested)
         {
@@ -54,7 +56,8 @@ public class KworkService(KworkParser parser, IOptions<AppSettings> settings) : 
                 var update = parser.GetUpdate();
                 await foreach (var project in update)
                 {
-                    Console.WriteLine(project.ToString());
+                    
+                    OnAddedProjectHandle(new KworkProjectArgs(project));
                 }
             }
             catch (Exception e)
@@ -63,11 +66,15 @@ public class KworkService(KworkParser parser, IOptions<AppSettings> settings) : 
             }
             finally
             {
-                var delay = _random.Next(settings.Value.MinDelay, settings.Value.MaxDelay);
+                var delay = _random.Next((int)TimeSpan.FromMinutes(settings.Value.MinDelay).TotalMilliseconds, (int)TimeSpan.FromMinutes(settings.Value.MaxDelay).TotalMilliseconds);
                 Log.Information("Delay {S} minutes", TimeSpan.FromMilliseconds(delay).TotalMinutes.ToString("F1"));
                 Log.Information("Next update {S}", DateTime.Now.AddMilliseconds(delay).ToString("HH:mm:ss"));
                 await Task.Delay(delay, _cts.Token);
             }
         }
+    }
+    private void OnAddedProjectHandle(KworkProjectArgs e)
+    {
+        OnAddedKworkProject?.Invoke(this, e);
     }
 }

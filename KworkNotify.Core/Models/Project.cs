@@ -8,7 +8,6 @@ public class Project
 {
     [JsonPropertyName("id")] public required int ProjectId { get; set; }
     [JsonPropertyName("name")] public required string Name { get; set; }
-    [JsonPropertyName("status")] public required string Status { get; set; }
     [JsonPropertyName("wantUserGetProfileUrl")] public required string UserUrl { get; set; }
     [JsonPropertyName("description")] public required string Description { get; set; }
     [JsonPropertyName("category_id")] public required string CategoryId { get; set; }
