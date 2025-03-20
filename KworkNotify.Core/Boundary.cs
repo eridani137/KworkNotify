@@ -2,23 +2,23 @@
 
 namespace KworkNotify.Core;
 
-public class BoundaryHelper
+public class Boundary
 {
-    public readonly string Boundary = $"------WebKitFormBoundary{DateTime.Now.Ticks:x}";
+    public readonly string BoundaryBody = $"------WebKitFormBoundary{DateTime.Now.Ticks:x}";
     
     public string GetBoundaryData(int pageNumber)
     {
         var builder = new StringBuilder();
             
-        builder.AppendLine($"{Boundary}")
+        builder.AppendLine($"{BoundaryBody}")
             .AppendLine("Content-Disposition: form-data; name=\"a\"")
             .AppendLine()
             .AppendLine("1")
-            .AppendLine($"{Boundary}")
+            .AppendLine($"{BoundaryBody}")
             .AppendLine("Content-Disposition: form-data; name=\"page\"")
             .AppendLine()
             .AppendLine($"{pageNumber}")
-            .Append($"{Boundary}--");
+            .Append($"{BoundaryBody}--");
 
         return builder.ToString();
     }

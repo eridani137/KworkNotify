@@ -7,7 +7,7 @@ namespace KworkNotify.Core;
 
 public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCookies)
 {
-    private readonly BoundaryHelper _boundary = new();
+    private readonly Boundary _boundary = new();
     private readonly Random _random = new();
 
     public async IAsyncEnumerable<Project> GetUpdate()
@@ -58,7 +58,7 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
         {
             headers.TryAdd(header.Key, header.Value);
         }
-        headers.Add("Content-Type", $"multipart/form-data; boundary={_boundary.Boundary}");
+        headers.Add("Content-Type", $"multipart/form-data; boundary={_boundary.BoundaryBody}");
         headers.Add("Referer", referer);
         headers.Add("Origin", settings.Value.SiteUrl);
         return headers;

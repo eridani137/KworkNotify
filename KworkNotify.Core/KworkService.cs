@@ -9,7 +9,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
     private Task? _task;
     private CancellationTokenSource? _cts;
     private readonly Random _random = new();
-    public event EventHandler<KworkProjectArgs>? OnAddedKworkProject;
+    public event EventHandler<KworkProjectArgs>? OnAddedNewProject;
     
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -56,8 +56,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
                 var update = parser.GetUpdate();
                 await foreach (var project in update)
                 {
-                    
-                    OnAddedProjectHandle(new KworkProjectArgs(project));
+                    OnAddedNewProjectHandle(new KworkProjectArgs(project));
                 }
             }
             catch (Exception e)
@@ -73,8 +72,8 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
             }
         }
     }
-    private void OnAddedProjectHandle(KworkProjectArgs e)
+    private void OnAddedNewProjectHandle(KworkProjectArgs e)
     {
-        OnAddedKworkProject?.Invoke(this, e);
+        OnAddedNewProject?.Invoke(this, e);
     }
 }

@@ -4,30 +4,30 @@ using KworkNotify.Core;
 namespace KworkNotify.Tests;
 
 [TestFixture]
-public class BoundaryHelperTests
+public class BoundaryTests
 {
-    private BoundaryHelper _boundaryHelper;
+    private Boundary _boundary;
 
     [SetUp]
     public void Setup()
     {
-        _boundaryHelper = new BoundaryHelper();
+        _boundary = new Boundary();
     }
     
     [Test]
     public void GetBoundaryHeader_ReturnsBoundaryWithoutFirstTwoChars()
     {
-        Assert.That(_boundaryHelper.Boundary, Is.Not.Null);
-        Assert.That(_boundaryHelper.Boundary, Does.StartWith("------"));
-        Assert.That(_boundaryHelper.Boundary, Does.Contain("WebKitFormBoundary"));
-        Assert.That(_boundaryHelper.Boundary, Has.Length.GreaterThan(16));
+        Assert.That(_boundary.BoundaryBody, Is.Not.Null);
+        Assert.That(_boundary.BoundaryBody, Does.StartWith("------"));
+        Assert.That(_boundary.BoundaryBody, Does.Contain("WebKitFormBoundary"));
+        Assert.That(_boundary.BoundaryBody, Has.Length.GreaterThan(16));
     }
     
     [Test]
     public void GetBoundaryData_ReturnsCorrectFormat()
     {
         const int pageNumber = 5;
-        var result = _boundaryHelper.GetBoundaryData(pageNumber);
+        var result = _boundary.GetBoundaryData(pageNumber);
     
         var lines = result.Split(["\r\n"], StringSplitOptions.None);
     
@@ -39,15 +39,15 @@ public class BoundaryHelperTests
     
         Assert.Multiple(() =>
         {
-            Assert.That(lines[0], Is.EqualTo(_boundaryHelper.Boundary));
+            Assert.That(lines[0], Is.EqualTo(_boundary.BoundaryBody));
             Assert.That(lines[1], Is.EqualTo("Content-Disposition: form-data; name=\"a\""));
             Assert.That(lines[2], Is.Empty);
             Assert.That(lines[3], Is.EqualTo("1"));
-            Assert.That(lines[4], Is.EqualTo(_boundaryHelper.Boundary));
+            Assert.That(lines[4], Is.EqualTo(_boundary.BoundaryBody));
             Assert.That(lines[5], Is.EqualTo("Content-Disposition: form-data; name=\"page\""));
             Assert.That(lines[6], Is.Empty);
             Assert.That(lines[7], Is.EqualTo(pageNumber.ToString()));
-            Assert.That(lines[8], Is.EqualTo($"{_boundaryHelper.Boundary}--"));
+            Assert.That(lines[8], Is.EqualTo($"{_boundary.BoundaryBody}--"));
         });
     }
     
@@ -57,8 +57,8 @@ public class BoundaryHelperTests
         const int page1 = 1;
         const int page2 = 2;
     
-        var result1 = _boundaryHelper.GetBoundaryData(page1);
-        var result2 = _boundaryHelper.GetBoundaryData(page2);
+        var result1 = _boundary.GetBoundaryData(page1);
+        var result2 = _boundary.GetBoundaryData(page2);
     
         Assert.That(result1, Is.Not.EqualTo(result2));
         Assert.Multiple(() =>
