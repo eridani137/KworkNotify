@@ -43,7 +43,8 @@ internal static class Program
             builder.Services.AddSerilog();
             builder.Services.AddSingleton<MongoContext>(_ => new MongoContext(connectionString));
             builder.Services.AddSingleton<KworkParser>();
-            builder.Services.AddHostedService<KworkService>();
+            builder.Services.AddSingleton<KworkService>();
+            builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
             builder.Services.AddHostedService<TelegramService>();
 
             var app = builder.Build();

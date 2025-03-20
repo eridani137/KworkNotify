@@ -22,6 +22,7 @@ public class Project
         var builder = new StringBuilder();
     
         builder.AppendLine(Name);
+        builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
         builder.AppendLine($"💵 Цена: {PriceLimit} - {PossiblePriceLimit}");
         builder.AppendLine($"⏳ Закончить за: {MaxDays} дней");

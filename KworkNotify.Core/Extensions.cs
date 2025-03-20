@@ -1,9 +1,10 @@
-﻿using MongoDB.Driver;
+﻿using System.Text.RegularExpressions;
+using MongoDB.Driver;
 using Serilog;
 
 namespace KworkNotify.Core;
 
-public static class Extensions
+public static partial class Extensions
 {
     public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, long userId, TelegramRole role = TelegramRole.User)
     {
@@ -28,8 +29,16 @@ public static class Extensions
         }
     }
     
+    public static string EscapeMarkdownV2(this string input)
+    {
+        return EscapeSymbols().Replace(input, @"\$1");
+    }
+    
     public static string EnabledOrDisabledToEmoji(this bool value)
     {
         return value ? "\ud83d\udfe2" : "\ud83d\udd34";
     }
+
+    [GeneratedRegex(@"([_*\[\]()~`>#+\-=|{}.!])")]
+    private static partial Regex EscapeSymbols();
 }
