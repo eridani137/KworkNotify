@@ -9,22 +9,22 @@ namespace KworkNotify.Api.Controllers;
 [ApiController]
 public class LogsController : ControllerBase
 {
-    private const int TailLinesCount = 250;
+    private const int TailLinesCount = 100;
     private readonly string _logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
-    
+
     [HttpGet("all")]
-    public Task<IActionResult> DownloadAllLogs() => HandleLogRequest(errorsOnly: false, tailOnly: false, asText: false);
+    public Task<IActionResult> DownloadAllLogs() => HandleLogRequest(false, false);
 
     [HttpGet("errors")]
-    public Task<IActionResult> DownloadErrorLogs() => HandleLogRequest(errorsOnly: true, tailOnly: false, asText: false);
+    public Task<IActionResult> DownloadErrorLogs() => HandleLogRequest(true, false);
 
     [HttpGet("tail")]
-    public Task<IActionResult> GetAllLogsTailText() => HandleLogRequest(errorsOnly: false, tailOnly: true, asText: true);
+    public Task<IActionResult> GetAllLogsTailText() => HandleLogRequest(false, true);
 
     [HttpGet("tail/errors")]
-    public Task<IActionResult> GetErrorLogsTailText() => HandleLogRequest(errorsOnly: true, tailOnly: true, asText: true);
+    public Task<IActionResult> GetErrorLogsTailText() => HandleLogRequest(true, true);
 
-    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly, bool asText)
+    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
     {
         try
         {
@@ -41,7 +41,7 @@ public class LogsController : ControllerBase
             if (tailOnly)
             {
                 var lines = await ReadLastLines(logFilePath, TailLinesCount);
-                var content = string.Join(Environment.NewLine, lines);
+                var content = string.Join(Environment.NewLine, lines.Reverse());
                 return Content(content, "text/plain");
             }
 
@@ -61,7 +61,7 @@ public class LogsController : ControllerBase
         await using FileStream stream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using StreamReader reader = new(stream);
         Queue<string> queue = new(lineCount);
-        
+
         while (await reader.ReadLineAsync() is { } line)
         {
             if (queue.Count >= lineCount)
@@ -70,7 +70,7 @@ public class LogsController : ControllerBase
             }
             queue.Enqueue(line);
         }
-        
+
         return queue.ToArray();
     }
 }
