@@ -68,6 +68,7 @@ public class TelegramService : IHostedService
             {
                 Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
                 await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
+                await Task.Delay(500);
             }
         }
     }
