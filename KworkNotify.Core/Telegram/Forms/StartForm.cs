@@ -1,5 +1,7 @@
 ﻿using KworkNotify.Core.Service;
+using MongoDB.Driver;
 using Serilog;
+using Telegram.Bot.Types;
 using TelegramBotBase.Base;
 using TelegramBotBase.Enums;
 using TelegramBotBase.Form;
@@ -34,10 +36,10 @@ public class StartForm : AutoCleanForm
         Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);
     }
 
-    public override Task Action(MessageResult message)
+    public override async Task Action(MessageResult message)
     {
-        if (_user is null) return Task.CompletedTask;
-        if (message.GetData<CallbackData>() is not { } callback) return Task.CompletedTask;
+        if (_user is null) return;
+        if (message.GetData<CallbackData>() is not { } callback) return ;
         message.Handled = true;
 
         Log.ForContext<StartForm>().Information("[{Device}] click {CallbackValue}", Device.DeviceId, callback.Value);
@@ -45,14 +47,13 @@ public class StartForm : AutoCleanForm
         {
             case "send_updates":
                 _user.SendUpdates = !_user.SendUpdates;
+                await _context.Users.UpdateOneAsync(u => u.Id == _user.Id,
+                    Builders<TelegramUser>.Update.Set(u => u.SendUpdates, _user.SendUpdates));
                 break;
-            
             default:
                 message.Handled = false;
                 break;
         }
-        
-        return Task.CompletedTask;
     }
     
     public override async Task Render(MessageResult message)
