@@ -20,12 +20,13 @@ public class TelegramService : IHostedService
     private readonly IOptions<AppSettings> _settings;
     private readonly BotBase _bot;
 
-    public TelegramService(TelegramData data, MongoContext context, KworkService kworkService, IOptions<AppSettings> settings)
+    public TelegramService(TelegramData data, MongoContext context, KworkService kworkService, RedisService redis, IOptions<AppSettings> settings)
     {
         _context = context;
         _settings = settings;
         var serviceCollection = new ServiceCollection()
             .AddSingleton<MongoContext>(_ => context)
+            .AddSingleton<RedisService>(_ => redis)
             .AddSingleton<AppSettings>(_ => settings.Value);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 

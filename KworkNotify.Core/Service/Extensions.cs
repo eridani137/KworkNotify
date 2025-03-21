@@ -7,25 +7,42 @@ namespace KworkNotify.Core.Service;
 
 public static partial class Extensions
 {
-    public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, long userId, TelegramRole role = TelegramRole.User)
+    public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, RedisService redis, long userId, TelegramRole role = TelegramRole.User)
     {
+        var cacheKey = userId.ToString();
+        var expiry = TimeSpan.FromHours(10);
+        
         try
         {
-            var user = await context.Users.Find(u => u.Id == userId)
+            var cachedUser = await redis.GetAsync<TelegramUser>(cacheKey);
+            if (cachedUser != null)
+            {
+                return cachedUser;
+            }
+            
+            var user = await context.Users
+                .Find(u => u.Id == userId)
                 .FirstOrDefaultAsync();
-            if (user != null) return user;
-            user = new TelegramUser()
+            if (user != null)
+            {
+                await redis.SetAsync(cacheKey, user, expiry);
+                return user;
+            }
+            
+            user = new TelegramUser
             {
                 Id = userId,
                 Role = role,
                 SendUpdates = true
             };
+            
             await context.Users.InsertOneAsync(user);
+            await redis.SetAsync(cacheKey, user, expiry);
             return user;
         }
         catch (Exception e)
         {
-            Log.Error(e, "GetOrAddUser");
+            Log.Error(e, "Unexpected error in GetOrAddUser for userId: {UserId}", userId);
             return null;
         }
     }

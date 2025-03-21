@@ -13,11 +13,13 @@ public class StartForm : AutoCleanForm
 {
     private TelegramUser? _user;
     private readonly MongoContext _context;
+    private readonly RedisService _redis;
     private readonly AppSettings _settings;
     
-    public StartForm(MongoContext context, AppSettings settings)
+    public StartForm(MongoContext context, RedisService redis, AppSettings settings)
     {
         _context = context;
+        _redis = redis;
         _settings = settings;
         DeleteMode = EDeleteMode.OnEveryCall;
         Opened += OnOpened;
@@ -30,7 +32,7 @@ public class StartForm : AutoCleanForm
         {
             role = TelegramRole.Admin;
         }
-        _user = await _context.GetOrAddUser(Device.DeviceId, role);
+        _user = await _context.GetOrAddUser(_redis, Device.DeviceId, role);
         if (_user is null) return;
         
         Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);

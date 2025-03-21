@@ -5,7 +5,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Kwork;
 
-public sealed class KworkService(KworkParser parser, IOptions<AppSettings> settings) : IHostedService
+public sealed class KworkService(KworkParser parser, RedisService redis, IOptions<AppSettings> settings) : IHostedService
 {
     private Task? _task;
     private CancellationTokenSource? _cts;
@@ -56,6 +56,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
                 var update = parser.GetUpdate();
                 await foreach (var project in update)
                 {
+                    if (await redis.KeyExistsAsync(project.GetKey)) continue;
                     await OnAddedNewProject(new KworkProjectArgs(project));
                 }
             }
@@ -76,6 +77,8 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
     {
         if (AddedNewProject != null)
         {
+            await redis.SetKeyAsync(args.KworkProject.GetKey, TimeSpan.FromMinutes(15));
+            
             var handlers = AddedNewProject.GetInvocationList()
                 .Cast<Func<object?, KworkProjectArgs, Task>>();
 
