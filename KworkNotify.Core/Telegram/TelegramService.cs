@@ -70,6 +70,8 @@ public class TelegramService : IHostedService
                 {
                     Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
                     await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
+                    await _context.Users.UpdateOneAsync(u => u.Id == user.Id,
+                        Builders<TelegramUser>.Update.Inc(u => u.ReceivedMessages, 1));
                 }
                 catch (Exception exception)
                 {
