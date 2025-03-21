@@ -51,24 +51,27 @@ public class BackupController(TelegramData data, IOptions<AppSettings> settings)
         {
             if (data.Bot is not { } bot) return StatusCode(500, "Bot is not initialized");
             if (settings.Value.AdminIds.Count <= 0) return StatusCode(500, "Admin Ids are required");
+            var mainAdminId = settings.Value.AdminIds.First();
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
             var time = DateTime.UtcNow + timeZone.BaseUtcOffset;
+            var caption = time.ToString("HH:mm:ss");
             var backupFiles = Directory.EnumerateFiles("/root", "*.gz").ToList();
-            foreach (var backupFile in backupFiles)
+            await Task.WhenAll(backupFiles.Select(async backupFile =>
             {
                 try
                 {
-                    await using var stream = new FileStream(backupFile, FileMode.Open);
-                    var input = new InputFileStream(stream, backupFile);
-                    var caption = time.ToString("HH:mm:ss");
-                    await bot.Client.TelegramClient.SendDocumentAsync(new ChatId(settings.Value.AdminIds.First()), document: input, caption: caption);
+                    await using var stream = new FileStream(backupFile, FileMode.Open, FileAccess.Read);
+                    var input = new InputFileStream(stream, Path.GetFileName(backupFile));
+                    await bot.Client.TelegramClient.SendDocumentAsync(
+                        new ChatId(mainAdminId),
+                        document: input,
+                        caption: $"Backup at {caption}");
                 }
                 catch (Exception e)
                 {
-                    Log.ForContext<BackupController>().Error(e, "failed to read backup file: {BackupFile}", backupFile);
+                    Log.ForContext<BackupController>().Error(e, "Failed to send backup file: {BackupFile}", backupFile);
                 }
-            }
-            
+            }));
             return Ok();
         }
         catch (Exception e)
