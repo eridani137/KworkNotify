@@ -26,20 +26,28 @@ try
     var cookies = Environment.GetEnvironmentVariable("COOKIES");
     var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
-    
+
     if (string.IsNullOrEmpty(cookies) || string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(botToken))
     {
         throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN");
     }
-    
+
     var builder = WebApplication.CreateBuilder(args);
-    
+
+    string configPath;
+
+#if DEBUG
+    configPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "KworkNotify.Core");
+#else
+    configPath = Directory.GetCurrentDirectory();
+#endif
+
     builder.Configuration
-        .SetBasePath(Path.GetFullPath(Path.Combine("..", "KworkNotify.Core")))
+        .SetBasePath(configPath)
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
         .AddEnvironmentVariables();
-    
+
     var jwt = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
     if (jwt == null)
     {
@@ -61,7 +69,7 @@ try
     // builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
     // builder.Services.AddHostedService<TelegramService>();
     builder.Services.AddSerilog();
-    
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -113,7 +121,7 @@ try
     });
 
     var app = builder.Build();
-    
+
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
