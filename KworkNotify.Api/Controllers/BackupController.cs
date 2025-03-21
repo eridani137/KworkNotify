@@ -20,6 +20,7 @@ public class BackupController(IOptions<AppSettings> settings) : ControllerBase
         {
             var result = await Cli.Wrap("bash")
                 .WithArguments(settings.Value.BackupScriptPath)
+                .WithWorkingDirectory("/root")
                 .WithValidation(CommandResultValidation.ZeroExitCode)
                 .ExecuteBufferedAsync();
             
