@@ -9,24 +9,56 @@ namespace KworkNotify.Api.Controllers;
 [ApiController]
 public class LogsController : ControllerBase
 {
+    private const int TailLinesCount = 250;
+    private readonly string _logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+    
     [HttpGet("all")]
     public async Task<IActionResult> DownloadAllLogs()
     {
+        return await HandleLogRequest(false, false);
+    }
+
+    [HttpGet("errors")]
+    public async Task<IActionResult> DownloadErrorLogs()
+    {
+        return await HandleLogRequest(true, false);
+    }
+
+    [HttpGet("tail/all")]
+    public async Task<IActionResult> GetAllLogsTail()
+    {
+        return await HandleLogRequest(false, true);
+    }
+
+    [HttpGet("tail/errors")]
+    public async Task<IActionResult> GetErrorLogsTail()
+    {
+        return await HandleLogRequest(true, true);
+    }
+    
+    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
+    {
         try
         {
-            var logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
             var datePart = DateTime.Today.ToString("yyyyMMdd");
-            var logFilePath = Path.Combine(logsPath, $"{datePart}.log");
+            var fileNamePrefix = errorsOnly ? "errors-" : "";
+            var logFilePath = Path.Combine(_logsPath, $"{fileNamePrefix}{datePart}.log");
+            var downloadFileName = $"logs-{fileNamePrefix}{datePart}{(tailOnly ? "-tail" : "")}.log";
 
             if (!System.IO.File.Exists(logFilePath))
             {
-                return NotFound($"The log file for {DateTime.Today:yyyy-MM-dd} was not found");
+                return NotFound($"Файл логов {(errorsOnly ? "ошибок " : "")}за {DateTime.Today:yyyy-MM-dd} не найден");
             }
 
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(logFilePath);
-            var downloadFileName = $"logs-{datePart}.log";
-
-            return File(fileBytes, "text/plain", downloadFileName);
+            if (tailOnly)
+            {
+                var lines = await ReadLastLines(logFilePath, TailLinesCount);
+                var bytes = System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+                return File(bytes, "text/plain", downloadFileName);
+            }
+            
+            var fileStream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return File(fileStream, "text/plain", downloadFileName);
         }
         catch (Exception e)
         {
@@ -36,30 +68,21 @@ public class LogsController : ControllerBase
         }
     }
     
-    [HttpGet("errors")]
-    public async Task<IActionResult> DownloadErrorLogs()
+    private async Task<string[]> ReadLastLines(string filePath, int lineCount)
     {
-        try
+        await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+        var queue = new Queue<string>(lineCount);
+            
+        while (await reader.ReadLineAsync() is { } line)
         {
-            var logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
-            var datePart = DateTime.Today.ToString("yyyyMMdd");
-            var logFilePath = Path.Combine(logsPath, $"errors-{datePart}.log");
-
-            if (!System.IO.File.Exists(logFilePath))
+            if (queue.Count >= lineCount)
             {
-                return NotFound($"The log file for {DateTime.Today:yyyy-MM-dd} was not found");
+                queue.Dequeue();
             }
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(logFilePath);
-            var downloadFileName = $"logs-errors-{datePart}.log";
-
-            return File(fileBytes, "text/plain", downloadFileName);
+            queue.Enqueue(line);
         }
-        catch (Exception e)
-        {
-            const string error = "error retrieving errors logs";
-            Log.ForContext<LogsController>().Error(e, error);
-            return StatusCode(500, error);
-        }
+            
+        return queue.ToArray();
     }
 }
