@@ -7,9 +7,14 @@ namespace KworkNotify.Core.Service;
 
 public static partial class Extensions
 {
+    public static string ToKey(this long userId)
+    {
+        return $"user:{userId.ToString()}";
+    }
+    
     public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, RedisService redis, long userId, TelegramRole role = TelegramRole.User)
     {
-        var cacheKey = $"user:{userId.ToString()}";
+        var cacheKey = userId.ToKey();
         var expiry = TimeSpan.FromHours(10);
         
         try

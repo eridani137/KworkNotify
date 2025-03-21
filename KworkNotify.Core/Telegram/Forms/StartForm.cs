@@ -49,6 +49,7 @@ public class StartForm : AutoCleanForm
         {
             case "send_updates":
                 _user.SendUpdates = !_user.SendUpdates;
+                await _redis.ReplaceIfExistsAsync(_user.Id.ToKey(), _user, keepTtl: true);
                 await _context.Users.UpdateOneAsync(u => u.Id == _user.Id,
                     Builders<TelegramUser>.Update.Set(u => u.SendUpdates, _user.SendUpdates));
                 break;

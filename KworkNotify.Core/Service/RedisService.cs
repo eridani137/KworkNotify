@@ -9,6 +9,7 @@ public interface IRedisService
     Task SetAsync(string key, string value, TimeSpan? expiry = null);
     Task<T?> GetAsync<T>(string key);
     Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null);
+    Task<bool> ReplaceIfExistsAsync<T>(string key, T value, TimeSpan? expiry = null, bool keepTtl = false);
     Task<bool> SetKeyAsync(string key, TimeSpan? expiry = null);
     Task<bool> KeyExistsAsync(string key);
 }
@@ -40,6 +41,13 @@ public class RedisService(IConnectionMultiplexer connection) : IRedisService
         var db = connection.GetDatabase();
         var jsonValue = JsonSerializer.Serialize(value);
         return await db.StringSetAsync(key, jsonValue, expiry);
+    }
+    
+    public async Task<bool> ReplaceIfExistsAsync<T>(string key, T value, TimeSpan? expiry = null, bool keepTtl = false)
+    {
+        var db = connection.GetDatabase();
+        var jsonValue = JsonSerializer.Serialize(value);
+        return await db.StringSetAsync(key, jsonValue, expiry, keepTtl: keepTtl, when: When.Exists);
     }
     
     public async Task<bool> SetKeyAsync(string key, TimeSpan? expiry = null)
