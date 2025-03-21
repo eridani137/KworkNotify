@@ -13,30 +13,18 @@ public class LogsController : ControllerBase
     private readonly string _logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
     
     [HttpGet("all")]
-    public async Task<IActionResult> DownloadAllLogs()
-    {
-        return await HandleLogRequest(false, false);
-    }
+    public Task<IActionResult> DownloadAllLogs() => HandleLogRequest(errorsOnly: false, tailOnly: false, asText: false);
 
     [HttpGet("errors")]
-    public async Task<IActionResult> DownloadErrorLogs()
-    {
-        return await HandleLogRequest(true, false);
-    }
+    public Task<IActionResult> DownloadErrorLogs() => HandleLogRequest(errorsOnly: true, tailOnly: false, asText: false);
 
-    [HttpGet("tail/all")]
-    public async Task<IActionResult> GetAllLogsTail()
-    {
-        return await HandleLogRequest(false, true);
-    }
+    [HttpGet("tail")]
+    public Task<IActionResult> GetAllLogsTailText() => HandleLogRequest(errorsOnly: false, tailOnly: true, asText: true);
 
     [HttpGet("tail/errors")]
-    public async Task<IActionResult> GetErrorLogsTail()
-    {
-        return await HandleLogRequest(true, true);
-    }
-    
-    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
+    public Task<IActionResult> GetErrorLogsTailText() => HandleLogRequest(errorsOnly: true, tailOnly: true, asText: true);
+
+    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly, bool asText)
     {
         try
         {
@@ -53,11 +41,11 @@ public class LogsController : ControllerBase
             if (tailOnly)
             {
                 var lines = await ReadLastLines(logFilePath, TailLinesCount);
-                var bytes = System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
-                return File(bytes, "text/plain", downloadFileName);
+                var content = string.Join(Environment.NewLine, lines);
+                return Content(content, "text/plain");
             }
-            
-            var fileStream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            await using FileStream fileStream = new(logFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             return File(fileStream, "text/plain", downloadFileName);
         }
         catch (Exception e)
@@ -67,13 +55,13 @@ public class LogsController : ControllerBase
             return StatusCode(500, error);
         }
     }
-    
-    private async Task<string[]> ReadLastLines(string filePath, int lineCount)
+
+    private static async Task<string[]> ReadLastLines(string filePath, int lineCount)
     {
-        await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using var reader = new StreamReader(stream);
-        var queue = new Queue<string>(lineCount);
-            
+        await using FileStream stream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using StreamReader reader = new(stream);
+        Queue<string> queue = new(lineCount);
+        
         while (await reader.ReadLineAsync() is { } line)
         {
             if (queue.Count >= lineCount)
@@ -82,7 +70,7 @@ public class LogsController : ControllerBase
             }
             queue.Enqueue(line);
         }
-            
+        
         return queue.ToArray();
     }
 }
