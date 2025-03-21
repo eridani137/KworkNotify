@@ -65,7 +65,7 @@ public class TelegramService : IHostedService
             var projectText = e.Project.ToString().Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.Project.ProjectId}/view");
             foreach (var user in users)
             {
-                await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText);
+                await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
             }
         }
     }
