@@ -13,7 +13,7 @@ public interface IRedisService
     Task<bool> KeyExistsAsync(string key);
 }
 
-public class RedisService(ConnectionMultiplexer connection) : IRedisService
+public class RedisService(IConnectionMultiplexer connection) : IRedisService
 {
     public async Task<string?> GetAsync(string key)
     {
