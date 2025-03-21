@@ -8,5 +8,6 @@ public class AppSettings
     public required int MaxDelay { get; init; }
     // ReSharper disable once CollectionNeverUpdated.Global
     public required Dictionary<string, string> Headers { get; init; } = new();
+    // ReSharper disable once CollectionNeverUpdated.Global
     public required List<long> AdminIds { get; init; } = [];
 }

@@ -38,7 +38,7 @@ public class AuthController(IUserService userService, IOptions<JwtSettings> jwtS
             issuer: jwtSettings.Value.Issuer,
             audience: jwtSettings.Value.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(1),
+            expires: DateTime.UtcNow.AddYears(1),
             signingCredentials: credentials
         );
         return new JwtSecurityTokenHandler().WriteToken(token);
