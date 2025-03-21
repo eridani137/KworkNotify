@@ -59,11 +59,11 @@ public class TelegramService : IHostedService
     }
     private async Task KworkServiceOnAddedNewProject(object? sender, KworkProjectArgs e)
     {
-        if (await _context.Projects.Find(p => p.ProjectId == e.Project.ProjectId).FirstOrDefaultAsync() is null)
+        if (await _context.Projects.Find(p => p.Id == e.Project.Id).FirstOrDefaultAsync() is null)
         {
             await _context.Projects.InsertOneAsync(e.Project);
             var users = await _context.Users.Find(_ => true).ToListAsync();
-            var projectText = e.Project.ToString().Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.Project.ProjectId}/view");
+            var projectText = e.Project.ToString().Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.Project.Id}/view");
             foreach (var user in users)
             {
                 await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);

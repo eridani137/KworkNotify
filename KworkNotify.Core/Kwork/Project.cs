@@ -1,12 +1,16 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace KworkNotify.Core.Kwork;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class Project
 {
-    [JsonPropertyName("id")] public required int ProjectId { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.Int32)]
+    [JsonPropertyName("id")] public required int Id { get; set; }
     [JsonPropertyName("name")] public required string Name { get; set; }
     [JsonPropertyName("wantUserGetProfileUrl")] public required string UserUrl { get; set; }
     [JsonPropertyName("description")] public required string Description { get; set; }
