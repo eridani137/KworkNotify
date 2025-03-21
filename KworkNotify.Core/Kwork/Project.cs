@@ -28,7 +28,7 @@ public class Project
         builder.AppendLine(Name);
         builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
-        builder.AppendLine($"💵 Цена: {PriceLimit} - {PossiblePriceLimit}");
+        builder.AppendLine($"💵 Цена: {PriceLimit.Replace(".00", "")} - {PossiblePriceLimit}");
         builder.AppendLine($"⏳ Закончить за: {MaxDays} дней");
         builder.AppendLine($"🤼‍♂️ Предложений: {GetWantsActiveCount}");
         builder.AppendLine($"🙋‍♂️ Покупатель: {User.UserName}");
