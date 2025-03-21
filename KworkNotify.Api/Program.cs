@@ -75,6 +75,7 @@ try
     builder.Services.AddSingleton<BackupManager>();
     builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
     builder.Services.AddHostedService<TelegramService>();
+    builder.Services.AddHostedService<BackupScheduler>();
     builder.Services.AddSerilog();
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

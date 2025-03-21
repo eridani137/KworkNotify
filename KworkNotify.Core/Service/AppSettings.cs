@@ -12,4 +12,5 @@ public class AppSettings
     public required List<long> AdminIds { get; init; } = [];
     public required string BackupScriptPath { get; init; }
     public required string BackupWorkingDirectory { get; init; }
+    public required int BackupInterval { get; init; }
 }
