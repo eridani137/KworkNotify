@@ -10,7 +10,7 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
     private readonly Boundary _boundary = new();
     private readonly Random _random = new();
 
-    public async IAsyncEnumerable<Project> GetUpdate()
+    public async IAsyncEnumerable<KworkProject> GetUpdate()
     {
         var pages = Enumerable.Range(1, settings.Value.PagesAmount).ToList();
         foreach (var page in pages)
@@ -33,7 +33,7 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
         }
     }
     
-    private async IAsyncEnumerable<Project>? ParsePage(int page)
+    private async IAsyncEnumerable<KworkProject>? ParsePage(int page)
     {
         var boundaryData = _boundary.GetBoundaryData(page);
         

@@ -20,5 +20,5 @@ public class KworkResponseDataPaginationData
 {
     [JsonPropertyName("current_page")] public required int CurrentPage { get; set; }
     // ReSharper disable once CollectionNeverUpdated.Global
-    [JsonPropertyName("data")] public required List<Project> Projects { get; set; } = [];
+    [JsonPropertyName("data")] public required List<KworkProject> Projects { get; set; } = [];
 }

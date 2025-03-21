@@ -1,6 +1,6 @@
 namespace KworkNotify.Core.Kwork;
 
-public class KworkProjectArgs(Project project) : EventArgs
+public class KworkProjectArgs(KworkProject kworkProject) : EventArgs
 {
-    public Project Project { get; set; } = project;
+    public KworkProject KworkProject { get; set; } = kworkProject;
 }

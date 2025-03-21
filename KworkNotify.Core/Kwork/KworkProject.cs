@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace KworkNotify.Core.Kwork;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class Project
+public class KworkProject
 {
     [BsonId]
     [BsonRepresentation(BsonType.Int32)]
@@ -19,7 +19,7 @@ public class Project
     [JsonPropertyName("priceLimit")] public required string PriceLimit { get; set; }
     [JsonPropertyName("getWantsActiveCount")] public required string GetWantsActiveCount { get; set; }
     [JsonPropertyName("max_days")] public required string MaxDays { get; set; }
-    [JsonPropertyName("user")] public required User User { get; set; }
+    [JsonPropertyName("user")] public required KworkUser KworkUser { get; set; }
 
     public override string ToString()
     {
@@ -31,9 +31,9 @@ public class Project
         builder.AppendLine($"💵 Цена: {PriceLimit.Replace(".00", "")} - {PossiblePriceLimit}");
         builder.AppendLine($"⏳ Закончить за: {MaxDays} дней");
         builder.AppendLine($"🤼‍♂️ Предложений: {GetWantsActiveCount}");
-        builder.AppendLine($"🙋‍♂️ Покупатель: {User.UserName}");
-        builder.AppendLine($"🎫 Нанято: {User.UserData.WantsHiredPercent}%");
-        builder.AppendLine($"⚒️ Размещено проектов: {User.UserData.WantsCount}");
+        builder.AppendLine($"🙋‍♂️ Покупатель: {KworkUser.UserName}");
+        builder.AppendLine($"🎫 Нанято: {KworkUser.UserData.WantsHiredPercent}%");
+        builder.AppendLine($"⚒️ Размещено проектов: {KworkUser.UserData.WantsCount}");
         builder.AppendLine();
         builder.AppendLine($"📋 {Description}");
         builder.AppendLine();

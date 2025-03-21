@@ -3,7 +3,7 @@
 namespace KworkNotify.Core.Kwork;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class User
+public class KworkUser
 {
     [JsonPropertyName("USERID")] public required int UserId { get; set; }
     [JsonPropertyName("username")] public required string UserName { get; set; }
