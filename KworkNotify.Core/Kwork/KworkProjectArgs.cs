@@ -1,6 +1,4 @@
-using KworkNotify.Core.Models;
-
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Kwork;
 
 public class KworkProjectArgs(Project project) : EventArgs
 {

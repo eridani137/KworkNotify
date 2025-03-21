@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using KworkNotify.Core.Models;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Kwork;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class KworkResponse

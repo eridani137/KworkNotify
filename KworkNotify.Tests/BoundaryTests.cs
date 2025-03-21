@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using KworkNotify.Core;
+using KworkNotify.Core.Service;
 
 namespace KworkNotify.Tests;
 

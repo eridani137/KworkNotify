@@ -1,4 +1,4 @@
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Telegram;
 
 public class TelegramUser
 {

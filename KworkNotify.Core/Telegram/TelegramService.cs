@@ -1,4 +1,6 @@
-﻿using KworkNotify.Core.Forms;
+﻿using KworkNotify.Core.Kwork;
+using KworkNotify.Core.Service;
+using KworkNotify.Core.Telegram.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -6,12 +8,11 @@ using MongoDB.Driver;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using TelegramBotBase;
 using TelegramBotBase.Builder;
 using TelegramBotBase.Commands;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Telegram;
 
 public class TelegramService : IHostedService
 {

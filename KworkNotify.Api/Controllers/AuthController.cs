@@ -5,6 +5,7 @@ using KworkNotify.Core;
 using KworkNotify.Core.Auth;
 using KworkNotify.Core.Dto;
 using KworkNotify.Core.Models;
+using KworkNotify.Core.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

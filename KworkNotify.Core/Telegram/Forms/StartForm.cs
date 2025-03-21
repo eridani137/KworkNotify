@@ -1,9 +1,10 @@
-﻿using Serilog;
+﻿using KworkNotify.Core.Service;
+using Serilog;
 using TelegramBotBase.Base;
 using TelegramBotBase.Enums;
 using TelegramBotBase.Form;
 
-namespace KworkNotify.Core.Forms;
+namespace KworkNotify.Core.Telegram.Forms;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class StartForm : AutoCleanForm

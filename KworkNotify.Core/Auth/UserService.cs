@@ -1,4 +1,5 @@
 ﻿using KworkNotify.Core.Models;
+using KworkNotify.Core.Service;
 using MongoDB.Driver;
 
 namespace KworkNotify.Core.Auth;

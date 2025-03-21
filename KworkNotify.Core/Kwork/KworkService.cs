@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using KworkNotify.Core.Service;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Kwork;
 
 public sealed class KworkService(KworkParser parser, IOptions<AppSettings> settings) : IHostedService
 {
@@ -21,7 +22,6 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
     
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        Log.Information("Kwork service stopping");
         try
         {
             if (_cts != null)
@@ -48,7 +48,6 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
             Log.Error("Kwork service can not be started");
             return;
         }
-        Log.Information("Kwork service starting");
         await Task.Delay(3000, _cts.Token);
         while (!_cts.Token.IsCancellationRequested)
         {

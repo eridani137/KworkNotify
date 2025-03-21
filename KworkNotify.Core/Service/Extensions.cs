@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using KworkNotify.Core.Telegram;
 using MongoDB.Driver;
 using Serilog;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Service;
 
 public static partial class Extensions
 {

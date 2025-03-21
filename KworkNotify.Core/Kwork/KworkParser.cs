@@ -1,9 +1,9 @@
 ﻿using Flurl.Http;
-using KworkNotify.Core.Models;
+using KworkNotify.Core.Service;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Kwork;
 
 public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCookies)
 {

@@ -1,7 +1,9 @@
-﻿using KworkNotify.Core.Models;
+﻿using KworkNotify.Core.Kwork;
+using KworkNotify.Core.Models;
+using KworkNotify.Core.Telegram;
 using MongoDB.Driver;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Service;
 
 public class MongoContext
 {

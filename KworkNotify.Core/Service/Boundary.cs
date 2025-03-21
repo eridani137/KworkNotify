@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace KworkNotify.Core;
+namespace KworkNotify.Core.Service;
 
 public class Boundary
 {
