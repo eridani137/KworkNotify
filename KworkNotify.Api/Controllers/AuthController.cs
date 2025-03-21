@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using KworkNotify.Api.Auth;
-using KworkNotify.Api.Dto;
 using KworkNotify.Core;
+using KworkNotify.Core.Auth;
+using KworkNotify.Core.Dto;
 using KworkNotify.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

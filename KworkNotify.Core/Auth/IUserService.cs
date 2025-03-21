@@ -1,6 +1,6 @@
 ﻿using KworkNotify.Core.Models;
 
-namespace KworkNotify.Api.Auth;
+namespace KworkNotify.Core.Auth;
 
 public interface IUserService
 {

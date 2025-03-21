@@ -1,6 +1,7 @@
 using System.Text;
 using DotNetEnv;
 using KworkNotify.Core;
+using KworkNotify.Core.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,7 @@ var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .Enrich.FromLogContext()
-    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting.Diagnostics", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .WriteTo.Console(outputTemplate: outputTemplate)
     .WriteTo.File($"{logsPath}/.log", rollingInterval: RollingInterval.Day, outputTemplate: outputTemplate)
     .WriteTo.File($"{logsPath}/errors-.log", rollingInterval: RollingInterval.Day, outputTemplate: outputTemplate, restrictedToMinimumLevel: LogEventLevel.Error)
@@ -34,6 +35,7 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    // ReSharper disable once JoinDeclarationAndInitializer
     string configPath;
 
 #if DEBUG
@@ -66,6 +68,8 @@ try
     builder.Services.AddSingleton<MongoContext>(_ => new MongoContext(connectionString));
     builder.Services.AddSingleton<KworkParser>();
     builder.Services.AddSingleton<KworkService>();
+    builder.Services.AddScoped<IUserService, UserService>();
+    
     // builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
     // builder.Services.AddHostedService<TelegramService>();
     builder.Services.AddSerilog();

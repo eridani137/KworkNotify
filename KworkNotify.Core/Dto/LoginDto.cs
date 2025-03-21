@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace KworkNotify.Api.Dto;
+namespace KworkNotify.Core.Dto;
 
 public class LoginDto
 {

@@ -1,8 +1,7 @@
-﻿using KworkNotify.Core;
-using KworkNotify.Core.Models;
+﻿using KworkNotify.Core.Models;
 using MongoDB.Driver;
 
-namespace KworkNotify.Api.Auth;
+namespace KworkNotify.Core.Auth;
 
 public class UserService(MongoContext context) : IUserService
 {
