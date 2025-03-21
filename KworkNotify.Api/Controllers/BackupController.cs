@@ -21,21 +21,18 @@ public class BackupController(IOptions<AppSettings> settings) : ControllerBase
             var result = await Cli.Wrap("bash")
                 .WithArguments(settings.Value.BackupScriptPath)
                 .WithWorkingDirectory("/root")
-                .WithValidation(CommandResultValidation.ZeroExitCode)
+                .WithValidation(CommandResultValidation.None)
                 .ExecuteBufferedAsync();
-            
+        
             var stdout = result.StandardOutput;
             var stderr = result.StandardError;
-            
-            if (!string.IsNullOrEmpty(stderr))
+        
+            if (!string.IsNullOrEmpty(stderr) || result.ExitCode != 0)
             {
-                return BadRequest(new { Output = stdout, Error = stderr });
+                return BadRequest(new { Output = stdout, Error = stderr, ExitCode = result.ExitCode });
             }
-            
-            return Ok(new
-            {
-                Output = stdout
-            });
+        
+            return Ok(new { Output = stdout });
         }
         catch (Exception e)
         {
