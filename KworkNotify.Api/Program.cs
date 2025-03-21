@@ -72,6 +72,7 @@ try
     builder.Services.AddSingleton<KworkParser>();
     builder.Services.AddSingleton<KworkService>();
     builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddSingleton<BackupManager>();
     builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
     builder.Services.AddHostedService<TelegramService>();
     builder.Services.AddSerilog();
@@ -140,7 +141,7 @@ try
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "KworkNotify API V1");
     });
 
-    app.UseHttpsRedirection();
+    // app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
     await app.RunAsync();
