@@ -9,7 +9,7 @@ public static partial class Extensions
 {
     public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, RedisService redis, long userId, TelegramRole role = TelegramRole.User)
     {
-        var cacheKey = userId.ToString();
+        var cacheKey = $"user:{userId.ToString()}";
         var expiry = TimeSpan.FromHours(10);
         
         try
