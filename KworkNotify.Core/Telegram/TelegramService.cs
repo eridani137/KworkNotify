@@ -20,7 +20,7 @@ public class TelegramService : IHostedService
     private readonly IOptions<AppSettings> _settings;
     private readonly BotBase _bot;
 
-    public TelegramService(TelegramToken token, MongoContext context, KworkService kworkService, IOptions<AppSettings> settings)
+    public TelegramService(TelegramData data, MongoContext context, KworkService kworkService, IOptions<AppSettings> settings)
     {
         _context = context;
         _settings = settings;
@@ -30,7 +30,7 @@ public class TelegramService : IHostedService
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         _bot = BotBaseBuilder.Create()
-            .WithAPIKey(token.Token)
+            .WithAPIKey(data.Token)
             .DefaultMessageLoop()
             .WithServiceProvider<StartForm>(serviceProvider)
             .NoProxy()
@@ -40,7 +40,9 @@ public class TelegramService : IHostedService
             .UseRussian()
             .UseThreadPool()
             .Build();
-
+        
+        data.Bot = _bot;
+        
         kworkService.AddedNewProject += KworkServiceOnAddedNewProject;
 
         // _bot.BotCommand += (_, args) =>

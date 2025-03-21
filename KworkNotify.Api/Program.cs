@@ -64,7 +64,7 @@ try
     {
         Cookies = cookies
     });
-    builder.Services.AddSingleton(_ => new TelegramToken()
+    builder.Services.AddSingleton(_ => new TelegramData()
     {
         Token = botToken
     });
