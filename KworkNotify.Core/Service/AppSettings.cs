@@ -10,4 +10,5 @@ public class AppSettings
     public required Dictionary<string, string> Headers { get; init; } = new();
     // ReSharper disable once CollectionNeverUpdated.Global
     public required List<long> AdminIds { get; init; } = [];
+    public required string BackupScriptPath { get; set; }
 }
