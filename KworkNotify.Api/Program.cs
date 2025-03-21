@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
 
 const string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
@@ -30,10 +31,11 @@ try
     var cookies = Environment.GetEnvironmentVariable("COOKIES");
     var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
+    var redis = Environment.GetEnvironmentVariable("REDIS");
 
-    if (string.IsNullOrEmpty(cookies) || string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(botToken))
+    if (string.IsNullOrEmpty(cookies) || string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(botToken) || string.IsNullOrEmpty(redis))
     {
-        throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN");
+        throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN or REDIS");
     }
 
     var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +70,8 @@ try
     {
         Token = botToken
     });
+    builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
+    builder.Services.AddSingleton<RedisService>();
     builder.Services.AddSingleton<MongoContext>(_ => new MongoContext(connectionString));
     builder.Services.AddSingleton<KworkParser>();
     builder.Services.AddSingleton<KworkService>();

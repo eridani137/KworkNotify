@@ -21,6 +21,8 @@ public class KworkProject
     [JsonPropertyName("max_days")] public required string MaxDays { get; set; }
     [JsonPropertyName("user")] public required KworkUser KworkUser { get; set; }
 
+    public string GetKey => $"project:{Id}";
+    
     public override string ToString()
     {
         var builder = new StringBuilder();

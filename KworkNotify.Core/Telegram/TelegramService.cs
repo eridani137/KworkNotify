@@ -61,12 +61,20 @@ public class TelegramService : IHostedService
     }
     private async Task KworkServiceOnAddedNewProject(object? sender, KworkProjectArgs e)
     {
-        if (await _context.Projects.Find(p => p.Id == e.KworkProject.Id).FirstOrDefaultAsync() is null)
+        var project = await _context.Projects
+            .Find(p => p.Id == e.KworkProject.Id)
+            .FirstOrDefaultAsync();
+
+        if (project == null)
         {
-            await _context.Projects.InsertOneAsync(e.KworkProject);
-            var users = await _context.Users.Find(u => u.SendUpdates).ToListAsync();
-            var projectText = e.KworkProject.ToString().Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.KworkProject.Id}/view");
-            foreach (var user in users)
+            var usersToNotify = await _context.Users
+                .Find(u => u.SendUpdates)
+                .ToListAsync();
+            
+            var projectText = e.KworkProject.ToString()
+                .Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.KworkProject.Id}/view");
+            
+            foreach (var user in usersToNotify)
             {
                 try
                 {
@@ -84,6 +92,14 @@ public class TelegramService : IHostedService
                     await Task.Delay(500);
                 }
             }
+        }
+        else
+        {
+            await _context.Projects.UpdateOneAsync(
+                p => p.Id == e.KworkProject.Id,
+                Builders<KworkProject>.Update
+                    .Set(p => p.GetWantsActiveCount, e.KworkProject.GetWantsActiveCount)
+            );
         }
     }
 
