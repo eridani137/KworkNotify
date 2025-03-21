@@ -39,8 +39,8 @@ public class StartForm : AutoCleanForm
         if (_user is null) return Task.CompletedTask;
         if (message.GetData<CallbackData>() is not { } callback) return Task.CompletedTask;
         message.Handled = true;
-        
 
+        Log.ForContext<StartForm>().Information("[{Device}] click {CallbackValue}", Device.DeviceId, callback.Value);
         switch (callback.Value)
         {
             case "send_updates":
