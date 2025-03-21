@@ -73,7 +73,7 @@ public class TelegramService : IHostedService
                 }
                 catch (Exception exception)
                 {
-                    Log.ForContext<TelegramService>().Error(exception, "The message was not sent");
+                    Log.ForContext<TelegramService>().Error(exception, "The message was not sent to [{Device}]", user.Id);
                 }
                 finally
                 {
