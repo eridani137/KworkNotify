@@ -34,6 +34,12 @@ try
     
     var builder = WebApplication.CreateBuilder(args);
     
+    builder.Configuration
+        .SetBasePath(Path.GetFullPath(Path.Combine("..", "KworkNotify.Core")))
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddEnvironmentVariables();
+    
     var jwt = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
     if (jwt == null)
     {

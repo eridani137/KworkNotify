@@ -25,7 +25,6 @@
       <None Update=".env">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Include="appsettings.json" />
     </ItemGroup>
 
     <ItemGroup>
