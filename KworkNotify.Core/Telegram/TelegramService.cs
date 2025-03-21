@@ -66,9 +66,19 @@ public class TelegramService : IHostedService
             var projectText = e.KworkProject.ToString().Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.KworkProject.Id}/view");
             foreach (var user in users)
             {
-                Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
-                await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
-                await Task.Delay(500);
+                try
+                {
+                    Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
+                    await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
+                }
+                catch (Exception exception)
+                {
+                    Log.ForContext<TelegramService>().Error(exception, "The message was not sent");
+                }
+                finally
+                {
+                    await Task.Delay(500);
+                }
             }
         }
     }
