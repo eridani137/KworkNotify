@@ -45,7 +45,7 @@ public class BackupController(TelegramData data, IOptions<AppSettings> settings)
         }
     }
     [HttpGet("send")]
-    public async Task<ActionResult> SendBackup()
+    public async Task<ActionResult<List<string>>> SendBackup()
     {
         try
         {
@@ -67,13 +67,15 @@ public class BackupController(TelegramData data, IOptions<AppSettings> settings)
                         new ChatId(mainAdminId),
                         document: input,
                         caption: $"Backup at {caption}");
+                    System.IO.File.Delete(backupFile);
+                    Log.ForContext<BackupController>().Information("Backup file sent and deleted: {BackupFile}", backupFile);
                 }
                 catch (Exception e)
                 {
                     Log.ForContext<BackupController>().Error(e, "Failed to send backup file: {BackupFile}", backupFile);
                 }
             }));
-            return Ok();
+            return Ok(backupFiles);
         }
         catch (Exception e)
         {
