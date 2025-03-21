@@ -18,11 +18,11 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
             if (page > 1)
             {
                 var delay = _random.Next(3000, 7000);
-                Log.Information("Delay {S} seconds", TimeSpan.FromMilliseconds(delay).TotalSeconds.ToString("F0"));
+                Log.ForContext<KworkParser>().Information("Delay {S} seconds", TimeSpan.FromMilliseconds(delay).TotalSeconds.ToString("F0"));
                 await Task.Delay(delay);
             }
             
-            Log.Information("Load page {Page} of {PagesCount}", page, pages.Count);
+            Log.ForContext<KworkParser>().Information("Load page {Page} of {PagesCount}", page, pages.Count);
             
             var loadProjects = ParsePage(page);
             if (loadProjects == null) continue;

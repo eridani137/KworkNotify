@@ -147,7 +147,7 @@ try
 }
 catch (Exception e)
 {
-    Log.Logger.Error(e, "application load error");
+    Log.ForContext<Program>().Error(e, "application load error");
 }
 finally
 {

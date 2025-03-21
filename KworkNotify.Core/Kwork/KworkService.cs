@@ -14,7 +14,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
     
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        Log.Information("Kwork service started");
+        Log.ForContext<KworkService>().Information("Kwork service started");
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _task = Worker();
         return Task.CompletedTask;
@@ -35,7 +35,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
         }
         finally
         {
-            Log.Information("Kwork service stopped");
+            Log.ForContext<KworkService>().Information("Kwork service stopped");
             _cts?.Dispose();
             _task?.Dispose();
         }
@@ -45,7 +45,7 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
     {
         if (_cts?.Token == null)
         {
-            Log.Error("Kwork service can not be started");
+            Log.ForContext<KworkService>().Error("Kwork service can not be started");
             return;
         }
         await Task.Delay(3000, _cts.Token);
@@ -61,13 +61,13 @@ public sealed class KworkService(KworkParser parser, IOptions<AppSettings> setti
             }
             catch (Exception e)
             {
-                Log.Error(e, "Exception while executing Kwork service");
+                Log.ForContext<KworkService>().Error(e, "Exception while executing Kwork service");
             }
             finally
             {
                 var delay = _random.Next((int)TimeSpan.FromMinutes(settings.Value.MinDelay).TotalMilliseconds, (int)TimeSpan.FromMinutes(settings.Value.MaxDelay).TotalMilliseconds);
-                Log.Information("Delay {S} minutes", TimeSpan.FromMilliseconds(delay).TotalMinutes.ToString("F1"));
-                Log.Information("Next update {S}", DateTime.Now.AddMilliseconds(delay).ToString("HH:mm:ss"));
+                Log.ForContext<KworkService>().Information("Delay {S} minutes", TimeSpan.FromMilliseconds(delay).TotalMinutes.ToString("F1"));
+                Log.ForContext<KworkService>().Information("Next update {S}", DateTime.Now.AddMilliseconds(delay).ToString("HH:mm:ss"));
                 await Task.Delay(delay, _cts.Token);
             }
         }

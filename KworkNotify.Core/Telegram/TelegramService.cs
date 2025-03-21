@@ -74,12 +74,12 @@ public class TelegramService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await _bot.UploadBotCommands();
-        await _bot.Start();
-        Log.Information("Telegram bot started");
+        await _bot.Start(); 
+        Log.ForContext<TelegramService>().Information("Telegram bot started");
     }
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         await _bot.Stop();
-        Log.Information("Telegram bot stopped");
+        Log.ForContext<TelegramService>().Information("Telegram bot stopped");
     }
 }

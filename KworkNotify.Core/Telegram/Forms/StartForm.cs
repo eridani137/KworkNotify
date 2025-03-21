@@ -31,7 +31,7 @@ public class StartForm : AutoCleanForm
         _user = await _context.GetOrAddUser(Device.DeviceId, role);
         if (_user is null) return;
         
-        Log.Information("{Command} [{Device}]", "/start", Device.DeviceId);
+        Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);
     }
 
     public override Task Action(MessageResult message)
