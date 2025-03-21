@@ -52,10 +52,11 @@ public class BackupController(TelegramData data, IOptions<AppSettings> settings)
             if (data.Bot is not { } bot) return StatusCode(500, "Bot is not initialized");
             if (settings.Value.AdminIds.Count <= 0) return StatusCode(500, "Admin Ids are required");
             var mainAdminId = settings.Value.AdminIds.First();
+            var backupFiles = Directory.EnumerateFiles("/root", "*.gz").ToList();
+            if (backupFiles.Count <= 0) return StatusCode(500, "Backup files are required");
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
             var time = DateTime.UtcNow + timeZone.BaseUtcOffset;
             var caption = time.ToString("HH:mm:ss");
-            var backupFiles = Directory.EnumerateFiles("/root", "*.gz").ToList();
             await Task.WhenAll(backupFiles.Select(async backupFile =>
             {
                 try
