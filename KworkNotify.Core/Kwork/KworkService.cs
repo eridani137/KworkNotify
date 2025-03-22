@@ -1,5 +1,4 @@
-﻿using KworkNotify.Core.Service;
-using KworkNotify.Core.Service.Cache;
+﻿using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -7,7 +6,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Kwork;
 
-public sealed class KworkService(KworkParser parser, AppCache redis, IOptions<AppSettings> settings) : IHostedService
+public sealed class KworkService(IKworkParser parser, IAppCache redis, IOptions<AppSettings> settings) : IHostedService, IKworkService
 {
     private Task? _task;
     private CancellationTokenSource? _cts;
@@ -43,7 +42,7 @@ public sealed class KworkService(KworkParser parser, AppCache redis, IOptions<Ap
         }
     }
 
-    private async Task Worker()
+    public async Task Worker()
     {
         if (_cts?.Token == null)
         {
@@ -78,7 +77,7 @@ public sealed class KworkService(KworkParser parser, AppCache redis, IOptions<Ap
             }
         }
     }
-    private async Task OnAddedNewProject(KworkProjectArgs args)
+    public async Task OnAddedNewProject(KworkProjectArgs args)
     {
         if (AddedNewProject != null)
         {

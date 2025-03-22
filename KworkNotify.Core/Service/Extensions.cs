@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Interfaces;
+using KworkNotify.Core.Service.Database;
 using KworkNotify.Core.Telegram;
 using MongoDB.Driver;
 using Serilog;
@@ -13,7 +14,7 @@ public static partial class Extensions
         return $"user:{userId.ToString()}";
     }
     
-    public static async Task<TelegramUser?> GetOrAddUser(this MongoContext context, AppCache redis, long userId, TelegramRole role = TelegramRole.User)
+    public static async Task<TelegramUser?> GetOrAddUser(this IMongoContext context, IAppCache redis, long userId, TelegramRole role = TelegramRole.User)
     {
         var cacheKey = userId.ToKey();
         var expiry = TimeSpan.FromHours(10);

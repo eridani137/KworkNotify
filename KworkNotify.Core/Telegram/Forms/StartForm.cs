@@ -1,9 +1,10 @@
-﻿using KworkNotify.Core.Service;
+﻿using KworkNotify.Core.Interfaces;
+using KworkNotify.Core.Service;
 using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Database;
 using KworkNotify.Core.Service.Types;
 using MongoDB.Driver;
 using Serilog;
-using Telegram.Bot.Types;
 using TelegramBotBase.Base;
 using TelegramBotBase.Enums;
 using TelegramBotBase.Form;
@@ -14,11 +15,11 @@ namespace KworkNotify.Core.Telegram.Forms;
 public class StartForm : AutoCleanForm
 {
     private TelegramUser? _user;
-    private readonly MongoContext _context;
-    private readonly AppCache _redis;
-    private readonly AppSettings _settings;
+    private readonly IMongoContext _context;
+    private readonly IAppCache _redis;
+    private readonly IAppSettings _settings;
     
-    public StartForm(MongoContext context, AppCache redis, AppSettings settings)
+    public StartForm(IMongoContext context, IAppCache redis, IAppSettings settings)
     {
         _context = context;
         _redis = redis;

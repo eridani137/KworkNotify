@@ -1,6 +1,8 @@
-﻿namespace KworkNotify.Core.Service.Types;
+﻿using KworkNotify.Core.Interfaces;
 
-public class AppSettings
+namespace KworkNotify.Core.Service.Types;
+
+public class AppSettings : IAppSettings
 {
     public required string SiteUrl { get; init; }
     public required int PagesAmount { get; init; }
@@ -13,4 +15,5 @@ public class AppSettings
     public required string BackupScriptPath { get; init; }
     public required string BackupWorkingDirectory { get; init; }
     public required int BackupInterval { get; init; }
+    public required int StatisticPushInterval { get; init; }
 }

@@ -2,7 +2,7 @@
 
 namespace KworkNotify.Core.Auth;
 
-public interface IUserService
+public interface IApiUserService
 {
     Task<ApiUser?> Authenticate(string username, string password);
 }

@@ -2,10 +2,13 @@ using System.Text;
 using DotNetEnv;
 using KworkNotify.Core;
 using KworkNotify.Core.Auth;
+using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Service;
 using KworkNotify.Core.Service.Backup;
 using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Database;
+using KworkNotify.Core.Service.Statistic;
 using KworkNotify.Core.Service.Types;
 using KworkNotify.Core.Telegram;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -65,26 +68,28 @@ try
     }
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
-    builder.Services.AddSingleton(_ => new KworkCookies()
+    builder.Services.AddSingleton<IKworkData>(_ => new KworkData()
     {
         Cookies = cookies
     });
-    builder.Services.AddSingleton(_ => new TelegramData()
+    builder.Services.AddSingleton<ITelegramData>(_ => new TelegramData()
     {
         Token = botToken
     });
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
-    builder.Services.AddSingleton<AppCache>();
-    builder.Services.AddSingleton<MongoContext>(_ => new MongoContext(connectionString));
-    builder.Services.AddSingleton<KworkParser>();
-    builder.Services.AddSingleton<KworkService>();
-    builder.Services.AddScoped<IUserService, UserService>();
-    builder.Services.AddSingleton<BackupManager>();
+    builder.Services.AddSingleton<IAppCache, AppCache>();
+    builder.Services.AddSingleton<IMongoContext, MongoContext>(_ => new MongoContext(connectionString));
+    builder.Services.AddSingleton<IKworkParser, KworkParser>();
+    builder.Services.AddSingleton<IKworkService, KworkService>();
+    builder.Services.AddScoped<IApiUserService, ApiUserService>();
+    builder.Services.AddSingleton<IBackupManager, BackupManager>();
+    builder.Services.AddSingleton<IUsageStatisticManager, UsageStatisticManager>();
     builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
 #if RELEASE
     builder.Services.AddHostedService<TelegramService>();
 #endif
     builder.Services.AddHostedService<BackupScheduler>();
+    builder.Services.AddHostedService<UsageStatisticService>();
     builder.Services.AddSerilog();
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

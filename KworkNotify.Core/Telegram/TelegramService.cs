@@ -1,6 +1,7 @@
-﻿using KworkNotify.Core.Kwork;
-using KworkNotify.Core.Service;
+﻿using KworkNotify.Core.Interfaces;
+using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Database;
 using KworkNotify.Core.Service.Types;
 using KworkNotify.Core.Telegram.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,18 +19,18 @@ namespace KworkNotify.Core.Telegram;
 
 public class TelegramService : IHostedService
 {
-    private readonly MongoContext _context;
+    private readonly IMongoContext _context;
     private readonly IOptions<AppSettings> _settings;
     private readonly BotBase _bot;
 
-    public TelegramService(TelegramData data, MongoContext context, KworkService kworkService, AppCache redis, IOptions<AppSettings> settings)
+    public TelegramService(ITelegramData data, MongoContext context, KworkService kworkService, AppCache redis, IOptions<AppSettings> settings)
     {
         _context = context;
         _settings = settings;
         var serviceCollection = new ServiceCollection()
-            .AddSingleton<MongoContext>(_ => context)
-            .AddSingleton<AppCache>(_ => redis)
-            .AddSingleton<AppSettings>(_ => settings.Value);
+            .AddSingleton<IMongoContext, MongoContext>(_ => context)
+            .AddSingleton<IAppCache, AppCache>(_ => redis)
+            .AddSingleton<IAppSettings, AppSettings>(_ => settings.Value);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         _bot = BotBaseBuilder.Create()

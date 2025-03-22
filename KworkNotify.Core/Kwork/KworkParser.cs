@@ -1,12 +1,12 @@
 ﻿using Flurl.Http;
-using KworkNotify.Core.Service;
+using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace KworkNotify.Core.Kwork;
 
-public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCookies)
+public class KworkParser(IOptions<AppSettings> settings, IKworkData kworkData) : IKworkParser
 {
     private readonly Boundary _boundary = new();
     private readonly Random _random = new();
@@ -33,15 +33,15 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
             }
         }
     }
-    
-    private async IAsyncEnumerable<KworkProject>? ParsePage(int page)
+
+    public async IAsyncEnumerable<KworkProject>? ParsePage(int page)
     {
         var boundaryData = _boundary.GetBoundaryData(page);
         
         var referer = $"{settings.Value.SiteUrl}/projects";
 
         var receive = await $"{settings.Value.SiteUrl}/projects"
-            .WithCookies(kworkCookies.Cookies)
+            .WithCookies(kworkData.Cookies)
             .WithHeaders(GetHeaders(referer))
             .PostAsync(new StringContent(boundaryData))
             .ReceiveJson<KworkResponse>();
@@ -52,7 +52,7 @@ public class KworkParser(IOptions<AppSettings> settings, KworkCookies kworkCooki
         }
     }
 
-    private Dictionary<string, string> GetHeaders(string referer)
+    public Dictionary<string, string> GetHeaders(string referer)
     {
         var headers = new Dictionary<string, string>();
         foreach (var header in settings.Value.Headers)

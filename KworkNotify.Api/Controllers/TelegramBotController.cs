@@ -1,4 +1,4 @@
-﻿using KworkNotify.Core.Service;
+﻿using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Telegram;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ namespace KworkNotify.Api.Controllers;
 [Authorize]
 [Route("tg")]
 [ApiController]
-public class TelegramBotController(MongoContext context) : ControllerBase
+public class TelegramBotController(IMongoContext context) : ControllerBase
 {
     [HttpGet("users")]
     public async Task<ActionResult<IEnumerable<TelegramUser>>> GetAllUsers()

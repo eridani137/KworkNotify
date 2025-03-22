@@ -1,4 +1,4 @@
-﻿using KworkNotify.Core.Service.Cache;
+﻿using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -6,7 +6,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Service.Backup;
 
-public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptions<AppSettings> settings) : BackgroundService
+public class BackupScheduler(IBackupManager backupManager, IAppCache redis, IOptions<AppSettings> settings) : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromHours(settings.Value.BackupInterval);
 

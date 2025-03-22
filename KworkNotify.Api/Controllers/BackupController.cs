@@ -1,5 +1,4 @@
-﻿using KworkNotify.Core.Service;
-using KworkNotify.Core.Service.Backup;
+﻿using KworkNotify.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,7 @@ namespace KworkNotify.Api.Controllers;
 [Authorize]
 [Route("backup")]
 [ApiController]
-public class BackupController(BackupManager backupManager) : ControllerBase
+public class BackupController(IBackupManager backupManager) : ControllerBase
 {
     [HttpGet("create")]
     public async Task<ActionResult> CreateBackup()

@@ -1,11 +1,12 @@
-﻿using KworkNotify.Core.Kwork;
+﻿using KworkNotify.Core.Interfaces;
+using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Models;
 using KworkNotify.Core.Telegram;
 using MongoDB.Driver;
 
-namespace KworkNotify.Core.Service;
+namespace KworkNotify.Core.Service.Database;
 
-public class MongoContext
+public class MongoContext : IMongoContext
 {
     public IMongoCollection<TelegramUser> Users { get; }
     public IMongoCollection<ApiUser> ApiUsers { get; }

@@ -1,10 +1,10 @@
-﻿using KworkNotify.Core.Models;
-using KworkNotify.Core.Service;
+﻿using KworkNotify.Core.Interfaces;
+using KworkNotify.Core.Models;
 using MongoDB.Driver;
 
 namespace KworkNotify.Core.Auth;
 
-public class UserService(MongoContext context) : IUserService
+public class ApiUserService(IMongoContext context) : IApiUserService
 {
     public async Task<ApiUser?> Authenticate(string username, string password)
     {

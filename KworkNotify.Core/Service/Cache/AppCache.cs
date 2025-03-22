@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using KworkNotify.Core.Interfaces;
 using StackExchange.Redis;
 
 namespace KworkNotify.Core.Service.Cache;

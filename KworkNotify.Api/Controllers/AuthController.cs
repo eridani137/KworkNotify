@@ -15,12 +15,12 @@ namespace KworkNotify.Api.Controllers;
 
 [ApiController]
 [Route("auth")]
-public class AuthController(IUserService userService, IOptions<JwtSettings> jwtSettings) : ControllerBase
+public class AuthController(IApiUserService apiUserService, IOptions<JwtSettings> jwtSettings) : ControllerBase
 {
     [HttpPost("GenerateToken")]
     public async Task<IActionResult> GenerateJwtToken([FromBody] LoginDto login)
     {
-        var user = await userService.Authenticate(login.Username, login.Password);
+        var user = await apiUserService.Authenticate(login.Username, login.Password);
         if (user == null) return Unauthorized("Invalid username or password");
         var token = GenerateJwtToken(user);
         return Ok(new { Token = token });

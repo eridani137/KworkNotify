@@ -1,4 +1,4 @@
-﻿namespace KworkNotify.Core.Service.Cache;
+﻿namespace KworkNotify.Core.Interfaces;
 
 public interface IAppCache
 {
