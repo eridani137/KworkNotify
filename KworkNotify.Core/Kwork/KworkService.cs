@@ -1,4 +1,6 @@
 ﻿using KworkNotify.Core.Service;
+using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;

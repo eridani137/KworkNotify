@@ -11,4 +11,5 @@ public class TelegramUser
     public TelegramRole Role { get; set; }
     public bool SendUpdates { get; set; }
     public int ReceivedMessages { get; set; }
+    public int Actions { get; set; }
 }

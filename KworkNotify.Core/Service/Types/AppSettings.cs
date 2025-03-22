@@ -1,4 +1,4 @@
-﻿namespace KworkNotify.Core.Service;
+﻿namespace KworkNotify.Core.Service.Types;
 
 public class AppSettings
 {

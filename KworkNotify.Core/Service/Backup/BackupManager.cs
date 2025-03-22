@@ -1,12 +1,13 @@
 ﻿using CliWrap;
 using CliWrap.Buffered;
+using KworkNotify.Core.Service.Types;
 using KworkNotify.Core.Telegram;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace KworkNotify.Core.Service;
+namespace KworkNotify.Core.Service.Backup;
 
 public class BackupManager(TelegramData data, IOptions<AppSettings> settings)
 {

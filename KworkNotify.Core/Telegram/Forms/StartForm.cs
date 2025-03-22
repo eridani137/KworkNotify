@@ -1,4 +1,6 @@
 ﻿using KworkNotify.Core.Service;
+using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Types;
 using MongoDB.Driver;
 using Serilog;
 using Telegram.Bot.Types;
@@ -49,9 +51,13 @@ public class StartForm : AutoCleanForm
         {
             case "send_updates":
                 _user.SendUpdates = !_user.SendUpdates;
+                _user.Actions++;
                 await _redis.ReplaceIfExistsAsync(_user.Id.ToKey(), _user, keepTtl: true);
                 await _context.Users.UpdateOneAsync(u => u.Id == _user.Id,
-                    Builders<TelegramUser>.Update.Set(u => u.SendUpdates, _user.SendUpdates));
+                    Builders<TelegramUser>.Update
+                        .Set(u => u.SendUpdates, _user.SendUpdates)
+                        .Inc(u => u.Actions, 1)
+                    );
                 break;
             default:
                 message.Handled = false;

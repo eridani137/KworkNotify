@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Types;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace KworkNotify.Core.Service;
+namespace KworkNotify.Core.Service.Backup;
 
 public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptions<AppSettings> settings) : BackgroundService
 {

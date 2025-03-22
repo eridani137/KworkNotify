@@ -1,5 +1,7 @@
 ﻿using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Service;
+using KworkNotify.Core.Service.Cache;
+using KworkNotify.Core.Service.Types;
 using KworkNotify.Core.Telegram.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,8 +37,10 @@ public class TelegramService : IHostedService
             .DefaultMessageLoop()
             .WithServiceProvider<StartForm>(serviceProvider)
             .NoProxy()
-            .CustomCommands(c => { c.Add("start", "Запуск"); })
-            // .UseJSON()
+            .CustomCommands(c =>
+            {
+                c.Add("start", "Запуск");
+            })
             .NoSerialization()
             .UseRussian()
             .UseThreadPool()
@@ -45,20 +49,6 @@ public class TelegramService : IHostedService
         data.Bot = _bot;
         
         kworkService.AddedNewProject += KworkServiceOnAddedNewProject;
-
-        // _bot.BotCommand += (_, args) =>
-        // {
-        //     const string startCommand = "/start";
-        //
-        //     switch (args.Command)
-        //     {
-        //         case startCommand:
-        //             Log.Information("{Command} on {Device}", startCommand, args.Device.DeviceId);
-        //             break;
-        //     }
-        //     
-        //     return Task.CompletedTask;
-        // };
     }
     private async Task KworkServiceOnAddedNewProject(object? sender, KworkProjectArgs e)
     {

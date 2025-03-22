@@ -1,5 +1,6 @@
 ﻿using Flurl.Http;
 using KworkNotify.Core.Service;
+using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Options;
 using Serilog;
 
