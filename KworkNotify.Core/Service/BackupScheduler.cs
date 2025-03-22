@@ -24,6 +24,8 @@ public class BackupScheduler(BackupManager backupManager, RedisService redis, IO
             {
                 delayTime = TimeSpan.Zero;
             }
+            
+            Log.ForContext<BackupScheduler>().Information("Backup in {Delay} minutes", delayTime.Minutes);
         }
         
         while (!stoppingToken.IsCancellationRequested)
