@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace KworkNotify.Core.Service;
 
-public interface IRedisService
+public interface IAppCache
 {
     Task<string?> GetAsync(string key);
     Task SetAsync(string key, string value, TimeSpan? expiry = null);
@@ -14,7 +14,7 @@ public interface IRedisService
     Task<bool> KeyExistsAsync(string key);
 }
 
-public class RedisService(IConnectionMultiplexer connection) : IRedisService
+public class AppCache(IConnectionMultiplexer connection) : IAppCache
 {
     public async Task<string?> GetAsync(string key)
     {

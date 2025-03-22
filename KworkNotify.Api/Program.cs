@@ -71,14 +71,16 @@ try
         Token = botToken
     });
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
-    builder.Services.AddSingleton<RedisService>();
+    builder.Services.AddSingleton<AppCache>();
     builder.Services.AddSingleton<MongoContext>(_ => new MongoContext(connectionString));
     builder.Services.AddSingleton<KworkParser>();
     builder.Services.AddSingleton<KworkService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddSingleton<BackupManager>();
     builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
+#if RELEASE
     builder.Services.AddHostedService<TelegramService>();
+#endif
     builder.Services.AddHostedService<BackupScheduler>();
     builder.Services.AddSerilog();
 

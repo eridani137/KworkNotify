@@ -5,13 +5,13 @@ using Serilog;
 
 namespace KworkNotify.Core.Kwork;
 
-public sealed class KworkService(KworkParser parser, RedisService redis, IOptions<AppSettings> settings) : IHostedService
+public sealed class KworkService(KworkParser parser, AppCache redis, IOptions<AppSettings> settings) : IHostedService
 {
     private Task? _task;
     private CancellationTokenSource? _cts;
     private readonly Random _random = new();
     public event Func<object?, KworkProjectArgs, Task>? AddedNewProject;
-    
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         Log.ForContext<KworkService>().Information("Kwork service started");
@@ -19,7 +19,7 @@ public sealed class KworkService(KworkParser parser, RedisService redis, IOption
         _task = Worker();
         return Task.CompletedTask;
     }
-    
+
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         try
@@ -56,7 +56,10 @@ public sealed class KworkService(KworkParser parser, RedisService redis, IOption
                 var update = parser.GetUpdate();
                 await foreach (var project in update)
                 {
-                    if (await redis.KeyExistsAsync(project.GetKey)) continue;
+                    if (await redis.KeyExistsAsync(project.GetKey))
+                    {
+                        if (AddedNewProject != null) continue;
+                    }
                     await OnAddedNewProject(new KworkProjectArgs(project));
                 }
             }
@@ -78,12 +81,16 @@ public sealed class KworkService(KworkParser parser, RedisService redis, IOption
         if (AddedNewProject != null)
         {
             await redis.SetKeyAsync(args.KworkProject.GetKey, TimeSpan.FromMinutes(15));
-            
+
             var handlers = AddedNewProject.GetInvocationList()
                 .Cast<Func<object?, KworkProjectArgs, Task>>();
 
             var tasks = handlers.Select(handler => handler.Invoke(this, args));
             await Task.WhenAll(tasks);
+        }
+        else
+        {
+            Log.ForContext<KworkService>().Information("OnAddedNewProject: {Name}", args.KworkProject.Name);
         }
     }
 }

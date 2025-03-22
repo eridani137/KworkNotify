@@ -4,7 +4,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Service;
 
-public class BackupScheduler(BackupManager backupManager, RedisService redis, IOptions<AppSettings> settings) : BackgroundService
+public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptions<AppSettings> settings) : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromHours(settings.Value.BackupInterval);
 
@@ -12,9 +12,9 @@ public class BackupScheduler(BackupManager backupManager, RedisService redis, IO
     {
         Log.ForContext<BackupScheduler>().Information("Backup scheduler started");
 
-        var lastBackupStr = await redis.GetAsync($"backup");
+        var lastBackupStr = await redis.GetAsync("backup");
         var delayTime = _interval;
-        
+
         if (!string.IsNullOrEmpty(lastBackupStr) && DateTime.TryParse(lastBackupStr, out var lastBackupTime))
         {
             var nextBackupTime = lastBackupTime + _interval;
@@ -24,16 +24,16 @@ public class BackupScheduler(BackupManager backupManager, RedisService redis, IO
             {
                 delayTime = TimeSpan.Zero;
             }
-            
-            Log.ForContext<BackupScheduler>().Information("Backup in {Delay} minutes", delayTime.Minutes);
+
+            Log.ForContext<BackupScheduler>().Information("Backup in {Delay} minutes", delayTime.ToString());
         }
-        
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 await Task.Delay(delayTime, stoppingToken);
-                
+
                 Log.ForContext<BackupScheduler>().Information("Starting backup process at {Time}", DateTime.UtcNow);
 
                 var (createSuccess, createOutput, createError) = await backupManager.CreateBackupAsync();

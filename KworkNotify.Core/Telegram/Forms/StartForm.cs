@@ -13,10 +13,10 @@ public class StartForm : AutoCleanForm
 {
     private TelegramUser? _user;
     private readonly MongoContext _context;
-    private readonly RedisService _redis;
+    private readonly AppCache _redis;
     private readonly AppSettings _settings;
     
-    public StartForm(MongoContext context, RedisService redis, AppSettings settings)
+    public StartForm(MongoContext context, AppCache redis, AppSettings settings)
     {
         _context = context;
         _redis = redis;
