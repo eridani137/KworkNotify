@@ -27,8 +27,6 @@ public class KworkProject
     {
         var builder = new StringBuilder();
         
-        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
-        builder.AppendLine();
         builder.AppendLine(Name);
         builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
