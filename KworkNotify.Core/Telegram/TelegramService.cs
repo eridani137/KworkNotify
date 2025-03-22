@@ -84,6 +84,8 @@ public class TelegramService : IHostedService
                     await Task.Delay(500);
                 }
             }
+
+            await _context.Projects.InsertOneAsync(e.KworkProject);
         }
         else
         {

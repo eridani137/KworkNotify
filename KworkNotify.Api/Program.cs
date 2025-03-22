@@ -85,9 +85,7 @@ try
     builder.Services.AddSingleton<IBackupManager, BackupManager>();
     builder.Services.AddSingleton<IUsageStatisticManager, UsageStatisticManager>();
     builder.Services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<KworkService>());
-#if RELEASE
     builder.Services.AddHostedService<TelegramService>();
-#endif
     builder.Services.AddHostedService<BackupScheduler>();
     // builder.Services.AddHostedService<UsageStatisticService>();
     builder.Services.AddSerilog();

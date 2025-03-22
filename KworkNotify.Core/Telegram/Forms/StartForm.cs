@@ -30,12 +30,7 @@ public class StartForm : AutoCleanForm
     
     private async Task OnOpened(object sender, EventArgs e)
     {
-        var role = TelegramRole.User;
-        if (_settings.AdminIds.Contains(Device.DeviceId))
-        {
-            role = TelegramRole.Admin;
-        }
-        _user = await _context.GetOrAddUser(_redis, Device.DeviceId, role);
+        _user = await _context.OnOpenedForm(_redis, _settings, Device.DeviceId);
         if (_user is null) return;
         
         Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);
