@@ -42,14 +42,11 @@ public class LogsController : ControllerBase
             {
                 var lines = await ReadLastLines(logFilePath, TailLinesCount);
                 var content = string.Join(Environment.NewLine, lines.Reverse());
-                var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-                var ms = new MemoryStream(bytes);
-                return File(ms, "text/plain", downloadFileName);
+                return Content(content, "text/plain");
             }
 
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(logFilePath);
-            using var memoryStream = new MemoryStream(fileBytes);
-            return File(memoryStream, "text/plain", downloadFileName);
+            await using FileStream fileStream = new(logFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return File(fileStream, "text/plain", downloadFileName);
         }
         catch (Exception e)
         {
