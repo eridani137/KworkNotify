@@ -5,6 +5,7 @@ using KworkNotify.Core.Service.Database;
 using KworkNotify.Core.Service.Types;
 using MongoDB.Driver;
 using Serilog;
+using TelegramBotBase.Attributes;
 using TelegramBotBase.Base;
 using TelegramBotBase.Enums;
 using TelegramBotBase.Form;
@@ -12,46 +13,38 @@ using TelegramBotBase.Form;
 namespace KworkNotify.Core.Telegram.Forms;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class StartForm : AutoCleanForm
+public class StartForm : AutoCleanForm, ITelegramForm
 {
-    private TelegramUser? _user;
-    private readonly IMongoContext _context;
-    private readonly IAppCache _redis;
-    private readonly IAppSettings _settings;
-    
-    public StartForm(IMongoContext context, IAppCache redis, IAppSettings settings)
+    public MessageResult LastMessage { get; private set; }
+    public required IMongoContext Context { get; set; }
+    public required IAppCache Cache { get; set; }
+    public required IAppSettings AppSettings { get; set; }
+    public TelegramUser User { get; set; }
+    public bool IsInitialized { get; set; }
+
+#pragma warning disable CS8618, CS9264
+    public StartForm()
+#pragma warning restore CS8618, CS9264
     {
-        _context = context;
-        _redis = redis;
-        _settings = settings;
         DeleteMode = EDeleteMode.OnEveryCall;
-        Init += OnInit;
-    }
-    
-    private async Task OnInit(object sender, EventArgs e)
-    {
-        _user = await _context.OnInitForm(_redis, _settings, Device.DeviceId);
-        if (_user is null) return;
-        
-        Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);
     }
 
     public override async Task Action(MessageResult message)
     {
-        if (_user is null) return;
+        if (!IsInitialized) return;
         if (message.GetData<CallbackData>() is not { } callback) return;
         message.Handled = true;
-
+        
         Log.ForContext<StartForm>().Information("[UserAction] [{Device}] click {CallbackValue}", Device.DeviceId, callback.Value);
         switch (callback.Value)
         {
             case "send_updates":
-                _user.SendUpdates = !_user.SendUpdates;
-                _user.Actions++;
-                await _redis.ReplaceIfExistsAsync(_user.Id.ToKey(), _user, keepTtl: true);
-                await _context.Users.UpdateOneAsync(u => u.Id == _user.Id,
+                User.SendUpdates = !User.SendUpdates;
+                User.Actions++;
+                await Cache.ReplaceIfExistsAsync(User.Id.ToKey(), User, keepTtl: true);
+                await Context.Users.UpdateOneAsync(u => u.Id == User.Id,
                     Builders<TelegramUser>.Update
-                        .Set(u => u.SendUpdates, _user.SendUpdates)
+                        .Set(u => u.SendUpdates, User.SendUpdates)
                         .Inc(u => u.Actions, 1)
                     );
                 break;
@@ -63,11 +56,12 @@ public class StartForm : AutoCleanForm
     
     public override async Task Render(MessageResult message)
     {
-        if (_user is null) return;
+        LastMessage = message;
+        if (!IsInitialized) return;
         
         var form = new ButtonForm();
         
-        form.AddButtonRow(new ButtonBase($"{_user.SendUpdates.EnabledOrDisabledToEmoji()} получать новые кворки", new CallbackData("a", "send_updates").Serialize()));
+        form.AddButtonRow(new ButtonBase($"{User.SendUpdates.EnabledOrDisabledToEmoji()} получать новые кворки", new CallbackData("a", "send_updates").Serialize()));
 
         await Device.Send("Главное меню", form);
     }

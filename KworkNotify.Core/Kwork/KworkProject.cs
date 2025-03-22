@@ -26,7 +26,8 @@ public class KworkProject
     public override string ToString()
     {
         var builder = new StringBuilder();
-    
+        
+        builder.AppendLine("🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪");
         builder.AppendLine(Name);
         builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
@@ -38,7 +39,7 @@ public class KworkProject
         builder.AppendLine($"⚒️ Размещено проектов: {KworkUser.UserData.WantsCount}");
         builder.AppendLine();
         builder.AppendLine($"📋 {Description}");
-        builder.AppendLine();
+        builder.AppendLine("🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪");
             
         return builder.ToString();
     }

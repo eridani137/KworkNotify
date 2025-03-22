@@ -57,6 +57,8 @@ public sealed class KworkService(IKworkParser parser, IAppCache redis, IOptions<
                 var update = parser.GetUpdate();
                 await foreach (var project in update)
                 {
+                    if (_cts.Token.IsCancellationRequested) break;
+                    // if (settings.Value.IsDebug) break;
                     if (await redis.KeyExistsAsync(project.GetKey))
                     {
                         if (AddedNewProject != null) continue;
@@ -70,10 +72,13 @@ public sealed class KworkService(IKworkParser parser, IAppCache redis, IOptions<
             }
             finally
             {
-                var delay = _random.Next((int)TimeSpan.FromMinutes(settings.Value.MinDelay).TotalMilliseconds, (int)TimeSpan.FromMinutes(settings.Value.MaxDelay).TotalMilliseconds);
-                Log.ForContext<KworkService>().Information("Delay {S} minutes", TimeSpan.FromMilliseconds(delay).TotalMinutes.ToString("F1"));
-                Log.ForContext<KworkService>().Information("Next update {S}", DateTime.Now.AddMilliseconds(delay).ToString("HH:mm:ss"));
-                await Task.Delay(delay, _cts.Token);
+                if (!_cts.IsCancellationRequested)
+                {
+                    var delay = _random.Next((int)TimeSpan.FromMinutes(settings.Value.MinDelay).TotalMilliseconds, (int)TimeSpan.FromMinutes(settings.Value.MaxDelay).TotalMilliseconds);
+                    Log.ForContext<KworkService>().Information("Delay {S} minutes", TimeSpan.FromMilliseconds(delay).TotalMinutes.ToString("F1"));
+                    Log.ForContext<KworkService>().Information("Next update {S}", DateTime.Now.AddMilliseconds(delay).ToString("HH:mm:ss"));
+                    await Task.Delay(delay, _cts.Token);
+                }
             }
         }
     }
