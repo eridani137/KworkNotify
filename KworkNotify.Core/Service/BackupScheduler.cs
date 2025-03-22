@@ -66,12 +66,14 @@ public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptio
                     ReloadBackup(new Exception());
                 }
             }
+            catch (TaskCanceledException)
+            {
+                break;
+            }
             catch (Exception e)
             {
                 ReloadBackup(e);
             }
-
-            
         }
 
         Log.ForContext<BackupScheduler>().Information("Backup scheduler stopped");
