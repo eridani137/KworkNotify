@@ -100,10 +100,12 @@ public class TelegramService : IHostedService
         await _bot.UploadBotCommands();
         await _bot.Start(); 
         Log.ForContext<TelegramService>().Information("Telegram bot started");
+        await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(_settings.Value.AdminIds.First()), "Бот запущен", cancellationToken: cancellationToken);
     }
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         await _bot.Stop();
         Log.ForContext<TelegramService>().Information("Telegram bot stopped");
+        await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(_settings.Value.AdminIds.First()), "Бот остановлен", cancellationToken: cancellationToken);
     }
 }
