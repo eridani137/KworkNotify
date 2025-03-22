@@ -27,7 +27,8 @@ public class KworkProject
     {
         var builder = new StringBuilder();
         
-        builder.AppendLine("🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪");
+        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
+        builder.AppendLine();
         builder.AppendLine(Name);
         builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
@@ -39,7 +40,8 @@ public class KworkProject
         builder.AppendLine($"⚒️ Размещено проектов: {KworkUser.UserData.WantsCount}");
         builder.AppendLine();
         builder.AppendLine($"📋 {Description}");
-        builder.AppendLine("🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪");
+        builder.AppendLine();
+        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
             
         return builder.ToString();
     }
