@@ -39,7 +39,7 @@ public class KworkProject
         builder.AppendLine();
         builder.AppendLine($"📋 {Description}");
         builder.AppendLine();
-        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
+        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
             
         return builder.ToString();
     }
