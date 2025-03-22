@@ -25,12 +25,12 @@ public class StartForm : AutoCleanForm
         _redis = redis;
         _settings = settings;
         DeleteMode = EDeleteMode.OnEveryCall;
-        Opened += OnOpened;
+        Init += OnInit;
     }
     
-    private async Task OnOpened(object sender, EventArgs e)
+    private async Task OnInit(object sender, EventArgs e)
     {
-        _user = await _context.OnOpenedForm(_redis, _settings, Device.DeviceId);
+        _user = await _context.OnInitForm(_redis, _settings, Device.DeviceId);
         if (_user is null) return;
         
         Log.ForContext<StartForm>().Information("{Command} [{Device}]", "/start", Device.DeviceId);
@@ -39,7 +39,7 @@ public class StartForm : AutoCleanForm
     public override async Task Action(MessageResult message)
     {
         if (_user is null) return;
-        if (message.GetData<CallbackData>() is not { } callback) return ;
+        if (message.GetData<CallbackData>() is not { } callback) return;
         message.Handled = true;
 
         Log.ForContext<StartForm>().Information("[UserAction] [{Device}] click {CallbackValue}", Device.DeviceId, callback.Value);

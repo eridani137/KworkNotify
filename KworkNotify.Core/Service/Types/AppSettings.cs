@@ -4,6 +4,7 @@ namespace KworkNotify.Core.Service.Types;
 
 public class AppSettings : IAppSettings
 {
+    public required bool IsDebug { get; set; }
     public required string SiteUrl { get; init; }
     public required int PagesAmount { get; init; }
     public required int MinDelay { get; init; }

@@ -20,12 +20,14 @@ namespace KworkNotify.Core.Telegram;
 public class TelegramService : IHostedService
 {
     private readonly IMongoContext _context;
+    private readonly IAppCache _redis;
     private readonly IOptions<AppSettings> _settings;
     private readonly BotBase _bot;
 
     public TelegramService(ITelegramData data, IMongoContext context, KworkService kworkService, IAppCache redis, IOptions<AppSettings> settings)
     {
         _context = context;
+        _redis = redis;
         _settings = settings;
         var serviceCollection = new ServiceCollection()
             .AddSingleton<IMongoContext, MongoContext>(_ => (context as MongoContext)!)
@@ -59,9 +61,21 @@ public class TelegramService : IHostedService
 
         if (project == null)
         {
-            var usersToNotify = await _context.Users
-                .Find(u => u.SendUpdates)
-                .ToListAsync();
+            List<TelegramUser> usersToNotify;
+
+            if (_settings.Value.IsDebug)
+            {
+                var mainId = _settings.Value.AdminIds.First();
+                usersToNotify = await _context.Users
+                    .Find(u => u.Id == mainId)
+                    .ToListAsync();
+            }
+            else
+            {
+                usersToNotify = await _context.Users
+                    .Find(u => u.SendUpdates)
+                    .ToListAsync();
+            }
             
             var projectText = e.KworkProject.ToString()
                 .Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.KworkProject.Id}/view");
@@ -70,10 +84,12 @@ public class TelegramService : IHostedService
             {
                 try
                 {
-                    Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
-                    await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
-                    await _context.Users.UpdateOneAsync(u => u.Id == user.Id,
-                        Builders<TelegramUser>.Update.Inc(u => u.ReceivedMessages, 1));
+                    // Log.ForContext<TelegramService>().Information("[{Device}] send project '{ProjectName}'", user.Id, e.KworkProject.Name);
+                    // // await _bot.Client.TelegramClient.SendTextMessageAsync(new ChatId(user.Id), projectText, disableWebPagePreview: true);
+                    // var projectForm = new ProjectForm(_context, _redis, _settings.Value, e.KworkProject);
+                    // var r = _bot;
+                    // await _context.Users.UpdateOneAsync(u => u.Id == user.Id,
+                    //     Builders<TelegramUser>.Update.Inc(u => u.ReceivedMessages, 1));
                 }
                 catch (Exception exception)
                 {
@@ -85,7 +101,10 @@ public class TelegramService : IHostedService
                 }
             }
 
-            await _context.Projects.InsertOneAsync(e.KworkProject);
+            if (!_settings.Value.IsDebug)
+            {
+                await _context.Projects.InsertOneAsync(e.KworkProject);
+            }
         }
         else
         {

@@ -7,7 +7,7 @@ namespace KworkNotify.Core.Telegram;
 
 public static partial class TelegramExtensions
 {
-    public static async Task<TelegramUser?> OnOpenedForm(this IMongoContext context, IAppCache redis, IAppSettings settings, long chatId)
+    public static async Task<TelegramUser?> OnInitForm(this IMongoContext context, IAppCache redis, IAppSettings settings, long chatId)
     {
         var role = TelegramRole.User;
         if (settings.AdminIds.Contains(chatId))
