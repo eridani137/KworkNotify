@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using KworkNotify.Api.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -7,7 +8,7 @@ namespace KworkNotify.Api.Controllers;
 [Authorize]
 [Route("logs")]
 [ApiController]
-public class LogsController : ControllerBase
+public class LogsController : ControllerBase, ILogsController
 {
     private const int TailLinesCount = 100;
     private readonly string _logsPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
@@ -24,7 +25,7 @@ public class LogsController : ControllerBase
     [HttpGet("tail/errors")]
     public Task<IActionResult> GetErrorLogsTailText() => HandleLogRequest(true, true);
 
-    private async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
+    public async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
     {
         try
         {
