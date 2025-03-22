@@ -21,7 +21,7 @@ public class BackupManager(TelegramData data, IOptions<AppSettings> settings)
                 .WithWorkingDirectory(settings.Value.BackupWorkingDirectory)
                 .WithValidation(CommandResultValidation.None)
                 .ExecuteBufferedAsync();
-            
+
             var stdout = result.StandardOutput;
             var stderr = result.StandardError;
 
@@ -41,70 +41,70 @@ public class BackupManager(TelegramData data, IOptions<AppSettings> settings)
             return (false, string.Empty, e.Message);
         }
     }
-    
+
     public async Task<(bool Success, List<string> SentFiles, string Error)> SendBackupsAsync()
+    {
+        try
         {
-            try
+            if (data.Bot is not { } dataBot || dataBot.Client.TelegramClient is not { } telegramClient)
             {
-                if (data.Bot is not { } dataBot || dataBot.Client.TelegramClient is not { } telegramClient)
-                {
-                    const string error = "Telegram bot is not initialized";
-                    Log.ForContext<BackupManager>().Warning(error);
-                    return (false, [], error);
-                }
-                
-                if (settings.Value.AdminIds.Count == 0)
-                {
-                    const string error = "Admin IDs are required";
-                    Log.ForContext<BackupManager>().Error(error);
-                    return (false, [], error);
-                }
-
-                var backupFiles = Directory.EnumerateFiles(settings.Value.BackupWorkingDirectory, "*.gz").ToList();
-
-                if (backupFiles.Count == 0)
-                {
-                    const string error = "No backup files found";
-                    Log.ForContext<BackupManager>().Error(error);
-                    return (false, [], error);
-                }
-
-                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
-                var time = DateTime.UtcNow + timeZone.BaseUtcOffset;
-                var caption = $"Backup at {time:HH:mm:ss}";
-                var mainAdminId = settings.Value.AdminIds.First();
-                var sentFiles = new List<string>();
-
-                await Task.WhenAll(backupFiles.Select(async backupFile =>
-                {
-                    try
-                    {
-                        await using var stream = new FileStream(backupFile, FileMode.Open, FileAccess.Read);
-                        var input = new InputFileStream(stream, Path.GetFileName(backupFile));
-                        await telegramClient.SendDocumentAsync(
-                            new ChatId(mainAdminId),
-                            document: input,
-                            caption: caption);
-
-                        System.IO.File.Delete(backupFile);
-                        lock (sentFiles)
-                        {
-                            sentFiles.Add(backupFile);
-                        }
-                        Log.ForContext<BackupManager>().Information("Backup file sent and deleted: {BackupFile}", backupFile);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.ForContext<BackupManager>().Error(ex, "Failed to send backup file: {BackupFile}", backupFile);
-                    }
-                }));
-
-                return (true, sentFiles, string.Empty);
+                const string error = "Telegram bot is not initialized";
+                Log.ForContext<BackupManager>().Warning(error);
+                return (false, [], error);
             }
-            catch (Exception ex)
+
+            if (settings.Value.AdminIds.Count == 0)
             {
-                Log.ForContext<BackupManager>().Error(ex, "Failed to send backups");
-                return (false, [], ex.Message);
+                const string error = "Admin IDs are required";
+                Log.ForContext<BackupManager>().Error(error);
+                return (false, [], error);
             }
+
+            var backupFiles = Directory.EnumerateFiles(settings.Value.BackupWorkingDirectory, "*.gz").ToList();
+
+            if (backupFiles.Count == 0)
+            {
+                const string error = "No backup files found";
+                Log.ForContext<BackupManager>().Error(error);
+                return (false, [], error);
+            }
+
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+            var time = DateTime.UtcNow + timeZone.BaseUtcOffset;
+            var caption = $"Backup at {time:HH:mm:ss}";
+            var mainAdminId = settings.Value.AdminIds.First();
+            var sentFiles = new List<string>();
+
+            await Task.WhenAll(backupFiles.Select(async backupFile =>
+            {
+                try
+                {
+                    await using var stream = new FileStream(backupFile, FileMode.Open, FileAccess.Read);
+                    var input = new InputFileStream(stream, Path.GetFileName(backupFile));
+                    await telegramClient.SendDocumentAsync(
+                        new ChatId(mainAdminId),
+                        document: input,
+                        caption: caption);
+
+                    System.IO.File.Delete(backupFile);
+                    lock (sentFiles)
+                    {
+                        sentFiles.Add(backupFile);
+                    }
+                    Log.ForContext<BackupManager>().Information("Backup file sent and deleted: {BackupFile}", backupFile);
+                }
+                catch (Exception ex)
+                {
+                    Log.ForContext<BackupManager>().Error(ex, "Failed to send backup file: {BackupFile}", backupFile);
+                }
+            }));
+
+            return (true, sentFiles, string.Empty);
         }
+        catch (Exception ex)
+        {
+            Log.ForContext<BackupManager>().Error(ex, "Failed to send backups");
+            return (false, [], ex.Message);
+        }
+    }
 }

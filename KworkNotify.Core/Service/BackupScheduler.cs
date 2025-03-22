@@ -4,7 +4,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Service;
 
-public class BackupScheduler(BackupManager backupManager, IOptions<AppSettings> settings) : BackgroundService
+public class BackupScheduler(BackupManager backupManager, RedisService redis, IOptions<AppSettings> settings) : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromHours(settings.Value.BackupInterval);
 
@@ -12,10 +12,26 @@ public class BackupScheduler(BackupManager backupManager, IOptions<AppSettings> 
     {
         Log.ForContext<BackupScheduler>().Information("Backup scheduler started");
 
+        var lastBackupStr = await redis.GetAsync($"backup");
+        var delayTime = _interval;
+        
+        if (!string.IsNullOrEmpty(lastBackupStr) && DateTime.TryParse(lastBackupStr, out var lastBackupTime))
+        {
+            var nextBackupTime = lastBackupTime + _interval;
+            delayTime = nextBackupTime - DateTime.UtcNow;
+
+            if (delayTime <= TimeSpan.Zero)
+            {
+                delayTime = TimeSpan.Zero;
+            }
+        }
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                await Task.Delay(delayTime, stoppingToken);
+                
                 Log.ForContext<BackupScheduler>().Information("Starting backup process at {Time}", DateTime.UtcNow);
 
                 var (createSuccess, createOutput, createError) = await backupManager.CreateBackupAsync();
@@ -37,13 +53,15 @@ public class BackupScheduler(BackupManager backupManager, IOptions<AppSettings> 
                 {
                     Log.ForContext<BackupScheduler>().Information("Backup sent successfully. Files: {Files}", string.Join(", ", sentFiles));
                 }
+
+                await redis.SetAsync("backup", DateTime.UtcNow.ToString("O"), _interval);
+                delayTime = _interval;
             }
             catch (Exception ex)
             {
                 Log.ForContext<BackupScheduler>().Error(ex, "Unexpected error in backup scheduler");
+                delayTime = TimeSpan.FromMinutes(10);
             }
-
-            await Task.Delay(_interval, stoppingToken);
         }
 
         Log.ForContext<BackupScheduler>().Information("Backup scheduler stopped");
