@@ -13,7 +13,7 @@ public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptio
         Log.ForContext<BackupScheduler>().Information("Backup scheduler started");
 
         var lastBackupStr = await redis.GetAsync("backup");
-        var delayTime = _interval;
+        var delayTime = TimeSpan.Zero;
 
         if (!string.IsNullOrEmpty(lastBackupStr) && DateTime.TryParse(lastBackupStr, out var lastBackupTime))
         {
@@ -56,16 +56,31 @@ public class BackupScheduler(BackupManager backupManager, AppCache redis, IOptio
                     Log.ForContext<BackupScheduler>().Information("Backup sent successfully. Files: {Files}", string.Join(", ", sentFiles));
                 }
 
-                await redis.SetAsync("backup", DateTime.UtcNow.ToString("O"), _interval);
-                delayTime = _interval;
+                if (createSuccess && sendSuccess)
+                {
+                    await redis.SetAsync("backup", DateTime.UtcNow.ToString("O"), _interval);
+                    delayTime = _interval;
+                }
+                else
+                {
+                    ReloadBackup(new Exception());
+                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Log.ForContext<BackupScheduler>().Error(ex, "Unexpected error in backup scheduler");
-                delayTime = TimeSpan.FromMinutes(10);
+                ReloadBackup(e);
             }
+
+            
         }
 
         Log.ForContext<BackupScheduler>().Information("Backup scheduler stopped");
+        return;
+        
+        void ReloadBackup(Exception e)
+        {
+            Log.ForContext<BackupScheduler>().Error(e, "Unexpected error in backup scheduler");
+            delayTime = TimeSpan.FromMinutes(10);
+        }
     }
 }
