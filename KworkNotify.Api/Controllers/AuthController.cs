@@ -37,6 +37,7 @@ public class AuthController(IApiUserService apiUserService, IOptions<JwtSettings
         }
     }
 
+    [NonAction]
     public string GenerateJwtToken(ApiUser user)
     {
         var key = Encoding.UTF8.GetBytes(jwtSettings.Value.Secret);

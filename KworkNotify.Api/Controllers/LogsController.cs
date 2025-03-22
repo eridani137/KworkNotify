@@ -25,6 +25,7 @@ public class LogsController : ControllerBase, ILogsController
     [HttpGet("tail/errors")]
     public Task<IActionResult> GetErrorLogsTailText() => HandleLogRequest(true, true);
 
+    [NonAction]
     public async Task<IActionResult> HandleLogRequest(bool errorsOnly, bool tailOnly)
     {
         try
@@ -57,6 +58,7 @@ public class LogsController : ControllerBase, ILogsController
         }
     }
 
+    [NonAction]
     private static async Task<string[]> ReadLastLines(string filePath, int lineCount)
     {
         await using FileStream stream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
