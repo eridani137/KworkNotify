@@ -80,7 +80,7 @@ try
     builder.Services.AddSingleton<IAppCache, AppCache>();
     builder.Services.AddSingleton<IMongoContext, MongoContext>(_ => new MongoContext(connectionString));
     builder.Services.AddSingleton<IKworkParser, KworkParser>();
-    builder.Services.AddSingleton<IKworkService, KworkService>();
+    builder.Services.AddSingleton<KworkService>();
     builder.Services.AddScoped<IApiUserService, ApiUserService>();
     builder.Services.AddSingleton<IBackupManager, BackupManager>();
     builder.Services.AddSingleton<IUsageStatisticManager, UsageStatisticManager>();
@@ -89,7 +89,7 @@ try
     builder.Services.AddHostedService<TelegramService>();
 #endif
     builder.Services.AddHostedService<BackupScheduler>();
-    builder.Services.AddHostedService<UsageStatisticService>();
+    // builder.Services.AddHostedService<UsageStatisticService>();
     builder.Services.AddSerilog();
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
