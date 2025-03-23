@@ -1,10 +1,8 @@
-﻿using KworkNotify.Core.Interfaces;
-using TelegramBotBase;
+﻿using TL;
 
 namespace KworkNotify.Core.Telegram;
 
-public class TelegramData : ITelegramData
+public class TelegramData
 {
-    public required string Token { get; init; }
-    public BotBase? Bot { get; set; }
+    public DialogBase Admin { get; set; }
 }

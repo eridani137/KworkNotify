@@ -1,10 +1,8 @@
 using System.Text;
 using DotNetEnv;
-using KworkNotify.Core;
 using KworkNotify.Core.Auth;
 using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Kwork;
-using KworkNotify.Core.Service;
 using KworkNotify.Core.Service.Backup;
 using KworkNotify.Core.Service.Cache;
 using KworkNotify.Core.Service.Database;
@@ -18,6 +16,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
+using TL;
+using WTelegram;
 
 const string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
@@ -38,12 +38,42 @@ try
     var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
     var redis = Environment.GetEnvironmentVariable("REDIS");
+    var phoneNumber = Env.GetString("PHONE_NUMBER");
+    var password = Env.GetString("PASSWORD_2FA");
 
-    if (string.IsNullOrEmpty(cookies) || string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(botToken) || string.IsNullOrEmpty(redis))
+    if (string.IsNullOrEmpty(cookies) ||
+        string.IsNullOrEmpty(connectionString) ||
+        string.IsNullOrEmpty(botToken) || 
+        string.IsNullOrEmpty(redis) || 
+        string.IsNullOrEmpty(phoneNumber) ||
+        string.IsNullOrEmpty(password))
     {
         throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN or REDIS");
     }
+    
+    var api = Encoding.UTF8.GetString("9577953"u8.ToArray());
+    var hash = Encoding.UTF8.GetString("6fcaa437053f73735eec38dc52d81512"u8.ToArray());
+    
+    string? ConfigTelegram(string what)
+    {
+        switch (what)
+        {
+            case "api_id": return api;
+            case "api_hash": return hash;
+            case "phone_number": return phoneNumber;
+            case "verification_code": Console.Write("Code: "); return Console.ReadLine();
+            case "password": return password;
+            default: return null;
+        }
+    }
+    
+    var wTelegramLogs = new StreamWriter(Path.Combine(logsPath, "WTelegram.log"), true, Encoding.UTF8) { AutoFlush = true };
+    wTelegramLogs.AutoFlush = true;
+    Helpers.Log = (lvl, str) => wTelegramLogs.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{"TDIWE!"[lvl]}] {str}");
 
+    var client = new Client(ConfigTelegram);
+    var myself = await client.LoginUserIfNeeded();
+    
     var builder = WebApplication.CreateBuilder(args);
 
     // ReSharper disable once JoinDeclarationAndInitializer
@@ -72,10 +102,15 @@ try
     {
         Cookies = cookies
     });
-    builder.Services.AddSingleton<ITelegramData>(_ => new TelegramData()
-    {
-        Token = botToken
-    });
+    // builder.Services.AddSingleton<ITelegramData>(_ => new TelegramData()
+    // {
+    //     // Token = botToken
+    //     PhoneNumber = phoneNumber,
+    //     Password = password
+    // });
+    builder.Services.AddSingleton<TelegramData>();
+    builder.Services.AddSingleton<User>(_ => myself);
+    builder.Services.AddSingleton<Client>(_ => client);
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
     builder.Services.AddSingleton<IAppCache, AppCache>();
     builder.Services.AddSingleton<IMongoContext, MongoContext>(_ => new MongoContext(connectionString));
