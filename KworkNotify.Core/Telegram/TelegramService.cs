@@ -15,7 +15,6 @@ namespace KworkNotify.Core.Telegram;
 public class TelegramService : IHostedService
 {
     // private readonly ITelegramData _data;
-    private readonly TelegramData _telegramData;
     private readonly Client _client;
     private readonly IMongoContext _context;
     private readonly IAppCache _redis;
@@ -24,9 +23,8 @@ public class TelegramService : IHostedService
     private Channel? Channel { get; set; }
     public DialogBase? Dialog { get; set; }
 
-    public TelegramService(TelegramData telegramData, Client client, User user, IMongoContext context, KworkService kworkService, IAppCache redis, IOptions<AppSettings> settings)
+    public TelegramService(Client client, User user, IMongoContext context, KworkService kworkService, IAppCache redis, IOptions<AppSettings> settings)
     {
-        _telegramData = telegramData;
         _client = client;
         _context = context;
         _redis = redis;
@@ -106,7 +104,6 @@ public class TelegramService : IHostedService
         {
             if (dialogBase.Peer.ID != 1460469940) continue;
             Dialog = dialogBase;
-            _telegramData.Admin = dialogBase;
             break;
         }
         // await _bot.UploadBotCommands();

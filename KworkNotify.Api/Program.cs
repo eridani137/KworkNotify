@@ -108,7 +108,6 @@ try
     //     PhoneNumber = phoneNumber,
     //     Password = password
     // });
-    builder.Services.AddSingleton<TelegramData>();
     builder.Services.AddSingleton<User>(_ => myself);
     builder.Services.AddSingleton<Client>(_ => client);
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));

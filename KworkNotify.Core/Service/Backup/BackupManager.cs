@@ -4,10 +4,12 @@ using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Options;
 using Serilog;
+using TL;
+using WTelegram;
 
 namespace KworkNotify.Core.Service.Backup;
 
-public class BackupManager(IOptions<AppSettings> settings) : IBackupManager
+public class BackupManager(Client client, IOptions<AppSettings> settings) : IBackupManager
 {
     public async Task<(bool Success, string Output, string Error)> CreateBackupAsync()
     {
@@ -45,13 +47,6 @@ public class BackupManager(IOptions<AppSettings> settings) : IBackupManager
     {
         try
         {
-            // if (data.Bot is not { } dataBot || dataBot.Client.TelegramClient is not { } telegramClient)
-            // {
-            //     const string error = "Telegram bot is not initialized";
-            //     Log.ForContext<BackupManager>().Warning(error);
-            //     return (false, [], error);
-            // }
-
             if (settings.Value.AdminIds.Count == 0)
             {
                 const string error = "Admin IDs are required";
@@ -71,26 +66,27 @@ public class BackupManager(IOptions<AppSettings> settings) : IBackupManager
             var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
             var time = DateTime.UtcNow + timeZone.BaseUtcOffset;
             var caption = $"Backup at {time:HH:mm:ss}";
-            var mainAdminId = settings.Value.AdminIds.First();
             var sentFiles = new List<string>();
 
             await Task.WhenAll(backupFiles.Select(async backupFile =>
             {
                 try
                 {
-                    // await using var stream = new FileStream(backupFile, FileMode.Open, FileAccess.Read);
+                    var inputFile = await client.UploadFileAsync(backupFile);
+                    await client.SendMediaAsync(InputPeer.Self, caption, inputFile);
+                    
                     // var input = new InputFileStream(stream, Path.GetFileName(backupFile));
-                    // // await telegramClient.SendDocumentAsync(
-                    // //     new ChatId(mainAdminId),
-                    // //     document: input,
-                    // //     caption: caption); // TODO
-                    //
-                    // System.IO.File.Delete(backupFile);
-                    // lock (sentFiles)
-                    // {
-                    //     sentFiles.Add(backupFile);
-                    // }
-                    // Log.ForContext<BackupManager>().Information("Backup file sent and deleted: {BackupFile}", backupFile); // TODO
+                    // await telegramClient.SendDocumentAsync(
+                    //     new ChatId(mainAdminId),
+                    //     document: input,
+                    //     caption: caption); // TODO
+                    
+                    File.Delete(backupFile);
+                    lock (sentFiles)
+                    {
+                        sentFiles.Add(backupFile);
+                    }
+                    Log.ForContext<BackupManager>().Information("Backup file sent and deleted: {BackupFile}", backupFile); // TODO
                 }
                 catch (Exception ex)
                 {
