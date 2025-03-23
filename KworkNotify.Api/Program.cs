@@ -98,10 +98,10 @@ try
     }
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
-    builder.Services.AddSingleton<IKworkData>(_ => new KworkData()
-    {
-        Cookies = cookies
-    });
+    // builder.Services.AddSingleton<IKworkData>(_ => new KworkData()
+    // {
+    //     Cookies = cookies
+    // });
     // builder.Services.AddSingleton<ITelegramData>(_ => new TelegramData()
     // {
     //     // Token = botToken

@@ -6,7 +6,7 @@ using Serilog;
 
 namespace KworkNotify.Core.Kwork;
 
-public class KworkParser(IOptions<AppSettings> settings, IKworkData kworkData) : IKworkParser
+public class KworkParser(IOptions<AppSettings> settings) : IKworkParser
 {
     private readonly Boundary _boundary = new();
     private readonly Random _random = new();
@@ -41,7 +41,6 @@ public class KworkParser(IOptions<AppSettings> settings, IKworkData kworkData) :
         var referer = $"{settings.Value.SiteUrl}/projects";
 
         var receive = await $"{settings.Value.SiteUrl}/projects"
-            .WithCookies(kworkData.Cookies)
             .WithHeaders(GetHeaders(referer))
             .PostAsync(new StringContent(boundaryData))
             .ReceiveJson<KworkResponse>();
