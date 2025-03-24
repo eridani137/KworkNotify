@@ -54,14 +54,14 @@ public class TelegramService : IHostedService
         }
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
+        await _client.SendMessageAsync(InputPeer.Self, "Бот остановлен");
         Log.ForContext<TelegramService>().Information("Telegram bot started {Channel}", _channel?.title);
-        return Task.CompletedTask;
     }
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
+        await _client.SendMessageAsync(InputPeer.Self, "Бот остановлен");
         Log.ForContext<TelegramService>().Information("Telegram bot stopped");
-        return Task.CompletedTask;
     }
 }
