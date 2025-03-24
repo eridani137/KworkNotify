@@ -58,7 +58,6 @@ public sealed class KworkService(IKworkParser parser, IAppCache redis, IOptions<
                 await foreach (var project in update)
                 {
                     if (_cts.Token.IsCancellationRequested) break;
-                    // if (settings.Value.IsDebug) break;
                     if (await redis.KeyExistsAsync(project.GetKey))
                     {
                         if (AddedNewProject != null) continue;

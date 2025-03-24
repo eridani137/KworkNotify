@@ -75,12 +75,6 @@ public class BackupManager(Client client, IOptions<AppSettings> settings) : IBac
                     var inputFile = await client.UploadFileAsync(backupFile);
                     await client.SendMediaAsync(InputPeer.Self, caption, inputFile);
                     
-                    // var input = new InputFileStream(stream, Path.GetFileName(backupFile));
-                    // await telegramClient.SendDocumentAsync(
-                    //     new ChatId(mainAdminId),
-                    //     document: input,
-                    //     caption: caption); // TODO
-                    
                     File.Delete(backupFile);
                     lock (sentFiles)
                     {

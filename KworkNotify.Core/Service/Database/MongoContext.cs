@@ -1,14 +1,12 @@
 ﻿using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Models;
-using KworkNotify.Core.Telegram;
 using MongoDB.Driver;
 
 namespace KworkNotify.Core.Service.Database;
 
 public class MongoContext : IMongoContext
 {
-    public IMongoCollection<TelegramUser> Users { get; }
     public IMongoCollection<ApiUser> ApiUsers { get; }
     public IMongoCollection<KworkProject> Projects { get; set; }
     
@@ -16,7 +14,6 @@ public class MongoContext : IMongoContext
     {
         var client = new MongoClient(connectionString);
         var database = client.GetDatabase("kwork_notify");
-        Users = database.GetCollection<TelegramUser>("users");
         ApiUsers = database.GetCollection<ApiUser>("api_users");
         Projects = database.GetCollection<KworkProject>("projects");
     }

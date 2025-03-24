@@ -3,12 +3,12 @@ using DotNetEnv;
 using KworkNotify.Core.Auth;
 using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Kwork;
+using KworkNotify.Core.Service;
 using KworkNotify.Core.Service.Backup;
 using KworkNotify.Core.Service.Cache;
 using KworkNotify.Core.Service.Database;
 using KworkNotify.Core.Service.Statistic;
 using KworkNotify.Core.Service.Types;
-using KworkNotify.Core.Telegram;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
@@ -40,13 +40,14 @@ try
     var redis = Environment.GetEnvironmentVariable("REDIS");
     var phoneNumber = Env.GetString("PHONE_NUMBER");
     var password = Env.GetString("PASSWORD_2FA");
+    var channelId = Env.GetString("CHANNEL_ID");
 
     if (string.IsNullOrEmpty(cookies) ||
         string.IsNullOrEmpty(connectionString) ||
         string.IsNullOrEmpty(botToken) || 
         string.IsNullOrEmpty(redis) || 
         string.IsNullOrEmpty(phoneNumber) ||
-        string.IsNullOrEmpty(password))
+        string.IsNullOrEmpty(channelId))
     {
         throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN or REDIS");
     }
@@ -73,6 +74,13 @@ try
 
     var client = new Client(ConfigTelegram);
     var myself = await client.LoginUserIfNeeded();
+    var chats = await client.Messages_GetAllDialogs();
+    var channel = chats.chats[Convert.ToInt64(channelId)] as Channel;
+
+    if (channel == null)
+    {
+        throw new ApplicationException("Channel not found");
+    }
     
     var builder = WebApplication.CreateBuilder(args);
 
@@ -98,16 +106,8 @@ try
     }
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
-    // builder.Services.AddSingleton<IKworkData>(_ => new KworkData()
-    // {
-    //     Cookies = cookies
-    // });
-    // builder.Services.AddSingleton<ITelegramData>(_ => new TelegramData()
-    // {
-    //     // Token = botToken
-    //     PhoneNumber = phoneNumber,
-    //     Password = password
-    // });
+    
+    builder.Services.AddSingleton<Channel>(_ => channel);
     builder.Services.AddSingleton<User>(_ => myself);
     builder.Services.AddSingleton<Client>(_ => client);
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
