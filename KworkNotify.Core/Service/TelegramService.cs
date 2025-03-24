@@ -56,7 +56,7 @@ public class TelegramService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _client.SendMessageAsync(InputPeer.Self, "Бот остановлен");
+        await _client.SendMessageAsync(InputPeer.Self, "Бот запущен");
         Log.ForContext<TelegramService>().Information("Telegram bot started {Channel}", _channel?.title);
     }
     public async Task StopAsync(CancellationToken cancellationToken)
