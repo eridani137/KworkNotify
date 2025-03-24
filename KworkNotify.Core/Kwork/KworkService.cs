@@ -63,6 +63,7 @@ public sealed class KworkService(IKworkParser parser, IAppCache redis, IOptions<
                         if (AddedNewProject != null) continue;
                     }
                     await OnAddedNewProject(new KworkProjectArgs(project));
+                    await Task.Delay(1000);
                 }
             }
             catch (Exception e)
