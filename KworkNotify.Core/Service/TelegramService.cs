@@ -62,6 +62,7 @@ public class TelegramService : IHostedService
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         await _client.SendMessageAsync(InputPeer.Self, "Бот остановлен");
+        await _client.DisposeAsync();
         Log.ForContext<TelegramService>().Information("Telegram bot stopped");
     }
 }
