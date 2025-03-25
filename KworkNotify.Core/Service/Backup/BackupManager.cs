@@ -19,7 +19,7 @@ public class BackupManager(Client client, IOptions<AppSettings> settings) : IBac
             Log.ForContext<BackupManager>().Information("Starting backup script: {ScriptPath}", scriptPath);
             var result = await Cli.Wrap("bash")
                 .WithArguments(scriptPath)
-                .WithWorkingDirectory(settings.Value.BackupWorkingDirectory)
+                .WithWorkingDirectory(Path.GetDirectoryName(scriptPath)!)
                 .WithValidation(CommandResultValidation.None)
                 .ExecuteBufferedAsync();
 
@@ -47,14 +47,7 @@ public class BackupManager(Client client, IOptions<AppSettings> settings) : IBac
     {
         try
         {
-            if (settings.Value.AdminIds.Count == 0)
-            {
-                const string error = "Admin IDs are required";
-                Log.ForContext<BackupManager>().Error(error);
-                return (false, [], error);
-            }
-
-            var backupFiles = Directory.EnumerateFiles(settings.Value.BackupWorkingDirectory, "*.gz").ToList();
+            var backupFiles = Directory.EnumerateFiles(Path.GetDirectoryName(settings.Value.BackupScriptPath) ?? string.Empty, "*.gz").ToList();
 
             if (backupFiles.Count == 0)
             {
