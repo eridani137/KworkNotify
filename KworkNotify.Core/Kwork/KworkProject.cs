@@ -27,8 +27,6 @@ public class KworkProject
     {
         var builder = new StringBuilder();
         
-        builder.AppendLine(Separator);
-        builder.AppendLine();
         builder.AppendLine(Name);
         builder.AppendLine("🌐 |SET_URL_HERE|");
         builder.AppendLine();
