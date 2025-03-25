@@ -45,7 +45,7 @@ public class KworkParser(IOptions<AppSettings> settings) : IKworkParser
             .PostAsync(new StringContent(boundaryData))
             .ReceiveJson<KworkResponse>();
 
-        foreach (var project in receive.Data.Data.Projects)
+        foreach (var project in receive.Data.Data.Projects.Reverse())
         {
             yield return project;
         }

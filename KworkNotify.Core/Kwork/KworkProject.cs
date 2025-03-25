@@ -22,7 +22,7 @@ public class KworkProject
     [JsonPropertyName("user")] public required KworkUser KworkUser { get; set; }
 
     public string GetKey => $"project:{Id}";
-    
+    private static readonly string Separator = string.Join("", Enumerable.Repeat("~*", 7));
     public override string ToString()
     {
         var builder = new StringBuilder();
@@ -39,7 +39,7 @@ public class KworkProject
         builder.AppendLine();
         builder.AppendLine($"📋 {Description}");
         builder.AppendLine();
-        builder.AppendLine("\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3\ud83d\udfe3");
+        builder.AppendLine(Separator);
             
         return builder.ToString();
     }
