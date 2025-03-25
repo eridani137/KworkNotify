@@ -15,7 +15,7 @@ public class BackupManager(Client client, IOptions<AppSettings> settings) : IBac
     {
         try
         {
-            var scriptPath = settings.Value.BackupScriptPath;
+            var scriptPath = Path.GetFullPath(settings.Value.BackupScriptPath);
             Log.ForContext<BackupManager>().Information("Starting backup script: {ScriptPath}", scriptPath);
             var result = await Cli.Wrap("bash")
                 .WithArguments(scriptPath)
