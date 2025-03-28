@@ -103,9 +103,11 @@ try
     builder.Services.AddSingleton<User>(_ => myself);
     builder.Services.AddSingleton<Client>(_ => client);
 
+    var convertChannelId = Convert.ToInt64(channelId);
+    
     builder.Services.AddSingleton<TelegramData>(_ => new TelegramData()
     {
-        ChannelId = Convert.ToInt64(channelId)
+        ChannelId = convertChannelId
     });
     builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ => new TelegramBotClient(botToken));
     

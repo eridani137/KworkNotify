@@ -2,5 +2,5 @@
 
 public class TelegramData
 {
-    public required long ChannelId { get; set; }
+    public required long ChannelId { get; init; }
 }
