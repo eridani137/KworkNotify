@@ -1,28 +1,30 @@
-﻿using KworkNotify.Core.Interfaces;
+﻿using System.Text.Json;
+using KworkNotify.Core.Interfaces;
 using KworkNotify.Core.Kwork;
 using KworkNotify.Core.Service.Types;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Serilog;
-using TL;
-using WTelegram;
+using Telegram.Bot;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
 
 namespace KworkNotify.Core.Service;
 
 public class TelegramService : IHostedService
 {
-    private readonly Client _client;
-    private readonly Channel _channel;
     private readonly IMongoContext _context;
     private readonly IOptions<AppSettings> _settings;
+    private readonly ITelegramBotClient _bot;
+    private readonly TelegramData _telegramData;
 
-    public TelegramService(Client client, Channel channel, IMongoContext context, KworkService kworkService, IAppCache redis, IOptions<AppSettings> settings)
+    public TelegramService(IMongoContext context, KworkService kworkService, IOptions<AppSettings> settings, ITelegramBotClient bot, TelegramData telegramData)
     {
-        _client = client;
-        _channel = channel;
         _context = context;
         _settings = settings;
+        _bot = bot;
+        _telegramData = telegramData;
 
         kworkService.AddedNewProject += KworkServiceOnAddedNewProject;
     }
@@ -37,7 +39,10 @@ public class TelegramService : IHostedService
             var projectText = e.KworkProject.ToString()
                 .Replace("|SET_URL_HERE|", $"{_settings.Value.SiteUrl}/projects/{e.KworkProject.Id}/view");
 
-            await _client.SendMessageAsync(_channel.ToInputPeer(), projectText, preview: Client.LinkPreview.Disabled);
+            await _bot.SendMessage(_telegramData.ChannelId, projectText,
+                linkPreviewOptions: new LinkPreviewOptions() { IsDisabled = true });
+            
+            // await _client.SendMessageAsync(_channel.ToInputPeer(), projectText, preview: Client.LinkPreview.Disabled);
 
             if (!_settings.Value.IsDebug)
             {
@@ -56,13 +61,30 @@ public class TelegramService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _client.SendMessageAsync(InputPeer.Self, "Бот запущен");
-        Log.ForContext<TelegramService>().Information("Telegram bot started {Channel}", _channel?.title);
+        var receiverOptions = new ReceiverOptions
+        {
+            AllowedUpdates = {  }
+        };
+        _bot.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cancellationToken);
+        
+        var me = await _bot.GetMe(cancellationToken: cancellationToken);
+        Log.Information("Start bot @{Username}", me.Username);
     }
-    public async Task StopAsync(CancellationToken cancellationToken)
+    public Task StopAsync(CancellationToken cancellationToken)
     {
-        await _client.SendMessageAsync(InputPeer.Self, "Бот остановлен");
-        await _client.DisposeAsync();
         Log.ForContext<TelegramService>().Information("Telegram bot stopped");
+        return Task.CompletedTask;
+    }
+    
+    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+    
+    private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    {
+        var str = JsonSerializer.Serialize(exception);
+        Log.ForContext<TelegramService>().Error("error: {Str}", str);
+        return Task.CompletedTask;
     }
 }

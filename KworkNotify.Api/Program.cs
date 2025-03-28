@@ -16,11 +16,12 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
+using Telegram.Bot;
 using TL;
 using WTelegram;
 
 const string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
-var logsPath = Path.Combine(AppContext.BaseDirectory, "logs");
+var logsPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "logs"));
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -69,18 +70,10 @@ try
     }
     
     var wTelegramLogs = new StreamWriter(Path.Combine(logsPath, "WTelegram.log"), true, Encoding.UTF8) { AutoFlush = true };
-    wTelegramLogs.AutoFlush = true;
     Helpers.Log = (lvl, str) => wTelegramLogs.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{"TDIWE!"[lvl]}] {str}");
 
     var client = new Client(ConfigTelegram);
     var myself = await client.LoginUserIfNeeded();
-    var chats = await client.Messages_GetAllDialogs();
-    var channel = chats.chats[Convert.ToInt64(channelId)] as Channel;
-
-    if (channel == null)
-    {
-        throw new ApplicationException("Channel not found");
-    }
     
     var builder = WebApplication.CreateBuilder(args);
 
@@ -107,9 +100,15 @@ try
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
     
-    builder.Services.AddSingleton<Channel>(_ => channel);
     builder.Services.AddSingleton<User>(_ => myself);
     builder.Services.AddSingleton<Client>(_ => client);
+
+    builder.Services.AddSingleton<TelegramData>(_ => new TelegramData()
+    {
+        ChannelId = Convert.ToInt64(channelId)
+    });
+    builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ => new TelegramBotClient(botToken));
+    
     builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
     builder.Services.AddSingleton<IAppCache, AppCache>();
     builder.Services.AddSingleton<IMongoContext, MongoContext>(_ => new MongoContext(connectionString));
