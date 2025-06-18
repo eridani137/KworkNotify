@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LOGS_DIR="/root/publish/logs"
+LOGS_DIR="/root/build/logs"
 
 if [ ! -d "$LOGS_DIR" ]; then
     echo "Ошибка: Директория $LOGS_DIR не найдена"

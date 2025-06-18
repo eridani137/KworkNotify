@@ -2,7 +2,7 @@
 
 MONGO_BACKUP_SCRIPT="mongo_backup.sh"
 LOGS_BACKUP_SCRIPT="logs_backup.sh"
-ENV_FILE="/root/publish/.env"
+ENV_FILE="/root/build/.env"
 
 if [ ! -f "$MONGO_BACKUP_SCRIPT" ]; then
     echo "Ошибка: Скрипт $MONGO_BACKUP_SCRIPT не найден"
