@@ -35,7 +35,6 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Env.Load();
-    var cookies = Environment.GetEnvironmentVariable("COOKIES");
     var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
     var redis = Environment.GetEnvironmentVariable("REDIS");
@@ -43,14 +42,13 @@ try
     var password = Env.GetString("PASSWORD_2FA");
     var channelId = Env.GetString("CHANNEL_ID");
 
-    if (string.IsNullOrEmpty(cookies) ||
-        string.IsNullOrEmpty(connectionString) ||
+    if (string.IsNullOrEmpty(connectionString) ||
         string.IsNullOrEmpty(botToken) || 
         string.IsNullOrEmpty(redis) || 
         string.IsNullOrEmpty(phoneNumber) ||
         string.IsNullOrEmpty(channelId))
     {
-        throw new ApplicationException("Missing environment variables: COOKIES or CONNECTION_STRING or BOT_TOKEN or REDIS");
+        throw new ApplicationException("Missing environment variables");
     }
     
     var api = Encoding.UTF8.GetString("9577953"u8.ToArray());
@@ -68,7 +66,8 @@ try
             default: return null;
         }
     }
-    
+
+    Directory.CreateDirectory(logsPath);
     var wTelegramLogs = new StreamWriter(Path.Combine(logsPath, "WTelegram.log"), true, Encoding.UTF8) { AutoFlush = true };
     Helpers.Log = (lvl, str) => wTelegramLogs.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{"TDIWE!"[lvl]}] {str}");
 
