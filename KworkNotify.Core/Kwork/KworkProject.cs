@@ -18,6 +18,7 @@ public class KworkProject
     [JsonPropertyName("possiblePriceLimit")] public required int PossiblePriceLimit { get; set; }
     [JsonPropertyName("priceLimit")] public required string PriceLimit { get; set; }
     [JsonPropertyName("getWantsActiveCount")] public required string GetWantsActiveCount { get; set; }
+    [JsonPropertyName("kwork_count")] public required int KworkCount { get; set; }
     [JsonPropertyName("max_days")] public required string MaxDays { get; set; }
     [JsonPropertyName("user")] public required KworkUser KworkUser { get; set; }
 
@@ -32,7 +33,7 @@ public class KworkProject
         builder.AppendLine();
         builder.AppendLine($"💵 Цена: {PriceLimit.Replace(".00", "")} - {PossiblePriceLimit}");
         builder.AppendLine($"⏳ Закончить за: {MaxDays} дней");
-        builder.AppendLine($"🤼‍♂️ Предложений: {GetWantsActiveCount}");
+        builder.AppendLine($"🤼‍♂️ Предложений: {KworkCount}");
         builder.AppendLine($"🙋‍♂️ Покупатель: {KworkUser.UserName}");
         builder.AppendLine($"🎫 Нанято: {KworkUser.UserData.WantsHiredPercent}%");
         builder.AppendLine($"⚒️ Размещено проектов: {KworkUser.UserData.WantsCount}");

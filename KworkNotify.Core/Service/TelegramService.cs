@@ -54,7 +54,7 @@ public class TelegramService : IHostedService
             await _context.Projects.UpdateOneAsync(
                 p => p.Id == e.KworkProject.Id,
                 Builders<KworkProject>.Update
-                    .Set(p => p.GetWantsActiveCount, e.KworkProject.GetWantsActiveCount)
+                    .Set(p => p.KworkCount, e.KworkProject.KworkCount)
             );
         }
     }
